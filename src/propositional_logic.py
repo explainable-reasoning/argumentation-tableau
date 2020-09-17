@@ -1,6 +1,8 @@
 from typing import *
 import itertools
 
+# Each proposition is either an atomic proposition (that is, a variable), or a complex (=composite) proposition, made up of some other propositions and an operator connecting them.
+
 
 class AtomicProposition:
     """
@@ -14,6 +16,9 @@ class AtomicProposition:
         return self.name
 
     def eval(self, model):
+        """
+        Returns the truth value of the proposition given a model assigning a truth value to each variable.
+        """
         if self.name in model:
             return model[self.name]
         else:
@@ -53,10 +58,16 @@ class ComplexProposition:
         return '(' + s + ')'
 
     def eval(self, model: Dict[str, bool]) -> bool:
+        """
+        Returns the truth value of the proposition given a model assigning a truth value to each variable.
+        """
         evaluatedChildren = [child.eval(model) for child in self.children]
         return self.operator(*evaluatedChildren)
 
     def variables(self) -> List[str]:
+        """
+        Returns a unique list of all variable names occuring in the proposition.
+        """
         return sorted(list(set(flat([child.variables() for child in self.children]))))
 
     def truthtable(self) -> List[Tuple[Dict[str, bool], bool]]:
