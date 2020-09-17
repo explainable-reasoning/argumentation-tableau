@@ -47,7 +47,7 @@ class ComplexProposition:
         if len(children) == 1:
             s = op + str(children[0])
         elif len(children) == 2:
-            s = str(children[0]) + op + str(children[1])
+            s = str(children[0]) + ' ' + op + ' ' + str(children[1])
         else:
             s = op + '(' + [str(child) for child in children].join(', ') + ')'
         return '(' + s + ')'

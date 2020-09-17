@@ -1,8 +1,12 @@
 # ArgumentationSystemPrototype
 
-## Installation
+## Installation / usage
 
-- First, install [install anaconda](https://www.anaconda.com/products/individual).
-- `conda install anaconda-project`: Installs [anaconda-project](https://anaconda-project.readthedocs.io/en/latest/user-guide/getting-started.html).
-- `anaconda-project run`: Runs this project. This should automatically install all dependencies specified in the `anaconda-project.yml` file.
-- `anaconda-project add-packages somepackage` for adding dependencies.
+- [Install anaconda](https://www.anaconda.com/products/individual), then `conda install anaconda-project` 
+- [Documentation for anaconda-project](https://anaconda-project.readthedocs.io/en/latest/user-guide/getting-started.html)
+- Important commands:
+  - `anaconda-project add-packages somepackage`
+  - `anaconda-project run`
+  - `anaconda-project run typecheck`
+  - `anaconda-project run test`
+- Ask David P for more info or if you're struggling.

@@ -26,11 +26,13 @@ description:
 #
 commands:
   main:
-    unix: python __main__.py
+    unix: python src/__main__.py
     env_spec: default
   typecheck:
-    unix: mypy __main__.py
+    unix: mypy src/__main__.py
     env_spec: default
+  test:
+    unix: pytest src/*_test.py
 
 #
 # In the variables section, list any environment variables your code depends on.
@@ -62,6 +64,7 @@ packages:
 
 - python
 - mypy
+- pytest
 #
 # In the channels section, list any Conda channel URLs to be searched
 # for packages.
