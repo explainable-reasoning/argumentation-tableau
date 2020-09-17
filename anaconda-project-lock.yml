@@ -17,7 +17,7 @@ locking_enabled: true
 env_specs:
   default:
     locked: true
-    env_spec_hash: ad93da572d93559a091e66fc420afcae0d1aa20b
+    env_spec_hash: 75fdcef21d19fede8515672f3dbd5514e4e5d4a3
     platforms:
     - linux-64
     - osx-64
@@ -100,6 +100,8 @@ env_specs:
       - more-itertools=8.4.0=py_0
       - mpmath=1.1.0=py38_0
       - multipledispatch=0.6.0=py38_0
+      - mypy=0.782=py_0
+      - mypy_extensions=0.4.3=py38_0
       - nbformat=5.0.7=py_0
       - networkx=2.4=py_1
       - nltk=3.5=py_0
@@ -320,6 +322,7 @@ env_specs:
       - tbb=2020.0=hfd86e86_0
       - tk=8.6.10=hbc83047_0
       - tornado=6.0.4=py38h7b6447c_1
+      - typed-ast=1.4.1=py38h7b6447c_0
       - ujson=1.35=py38h7b6447c_0
       - unixodbc=2.3.7=h14c3975_0
       - watchdog=0.10.3=py38_0
@@ -442,6 +445,7 @@ env_specs:
       - tbb=2020.0=h04f5b5a_0
       - tk=8.6.10=hb0a8c7a_0
       - tornado=6.0.4=py38h1de35cc_1
+      - typed-ast=1.4.1=py38h1de35cc_0
       - ujson=1.35=py38h1de35cc_0
       - unixodbc=2.3.7=h1de35cc_0
       - watchdog=0.10.3=py38haf1e3a3_0
@@ -566,6 +570,7 @@ env_specs:
       - tbb=2020.0=h74a9793_0
       - tk=8.6.10=he774522_0
       - tornado=6.0.4=py38he774522_1
+      - typed-ast=1.4.1=py38he774522_0
       - ujson=1.35=py38he774522_0
       - vc=14.1=h0510ff6_4
       - vs2015_runtime=14.16.27012=hf0eaf9b_3

@@ -28,6 +28,9 @@ commands:
   main:
     unix: python __main__.py
     env_spec: default
+  typecheck:
+    unix: mypy __main__.py
+    env_spec: default
 
 #
 # In the variables section, list any environment variables your code depends on.
@@ -58,6 +61,7 @@ packages:
 - anaconda
 
 - python
+- mypy
 #
 # In the channels section, list any Conda channel URLs to be searched
 # for packages.
