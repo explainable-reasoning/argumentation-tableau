@@ -37,7 +37,7 @@ class ComplexProposition:
         for arg in args:
             if type(arg) is str:
                 child = AtomicProposition(arg)
-            elif type(arg) is ComplexProposition:
+            elif isinstance(arg, ComplexProposition):
                 child = arg
             self.children.append(child)
 
