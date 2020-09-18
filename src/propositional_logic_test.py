@@ -29,3 +29,13 @@ def test():
                                       ({'A': False, 'B': True, 'C': False}, False),
                                       ({'A': False, 'B': False, 'C': True}, False),
                                       ({'A': False, 'B': False, 'C': False}, False)]
+
+    # True implies X
+    impl2 = Implies(T(), 'X')
+    assert str(impl2) == '(True → X)'
+    assert impl2.truthtable() == [({'X': True}, True), ({'X': False}, False)]
+
+    # False
+    f = F()
+    assert str(f) == 'False'
+    assert f.truthtable() == [({}, False)]

@@ -1,76 +1,30 @@
 from typing import *
+# A library for abstract classes, ABC means Abstract Base Class. Classes can be made abstract by inheriting from ABC.
+from abc import abstractmethod
 import itertools
 
-# Each proposition is either an atomic proposition (that is, a variable), or a complex (=composite) proposition, made up of some other propositions and an operator connecting them.
 
-
-class AtomicProposition:
+class Proposition:
     """
-    Atomic proposition (just one variable) to build up complex propositions.
+    Each proposition is either a truth value, a variable, or a complex (=composite) proposition, made up of some other propositions and an operator connecting them. This abstract class defines some common methods for all of them.
     """
 
-    def __init__(self, a: str):
-        self.name = a
-
-    def __str__(self):
-        return self.name
-
-    def eval(self, model):
+    @abstractmethod
+    def eval(self, model) -> bool:
         """
         Returns the truth value of the proposition given a model assigning a truth value to each variable.
         """
-        if self.name in model:
-            return model[self.name]
-        else:
-            raise KeyError(
-                'The specified model does not include a value for variable '
-                + self.name + ': ' + str(model))
 
-    def variables(self):
-        return [self.name]
-
-
-class ComplexProposition:
-    """
-    Proposition consisting of one or more other complex or atomic propositions, and an operator on them.
-    """
-
-    children: List[Union['ComplexProposition', AtomicProposition]]
-
-    def __init__(self, *args):
-        self.children = []
-        for arg in args:
-            if type(arg) is str:
-                child = AtomicProposition(arg)
-            elif isinstance(arg, ComplexProposition):
-                child = arg
-            self.children.append(child)
-
-    def __str__(self):
-        children = self.children
-        op = self.operator_symbol
-        if len(children) == 1:
-            s = op + str(children[0])
-        elif len(children) == 2:
-            s = str(children[0]) + ' ' + op + ' ' + str(children[1])
-        else:
-            s = op + '(' + [str(child) for child in children].join(', ') + ')'
-        return '(' + s + ')'
-
-    def eval(self, model: Dict[str, bool]) -> bool:
-        """
-        Returns the truth value of the proposition given a model assigning a truth value to each variable.
-        """
-        evaluatedChildren = [child.eval(model) for child in self.children]
-        return self.operator(*evaluatedChildren)
-
+    @abstractmethod
     def variables(self) -> List[str]:
         """
         Returns a unique list of all variable names occuring in the proposition.
         """
-        return sorted(list(set(flat([child.variables() for child in self.children]))))
 
     def truthtable(self) -> List[Tuple[Dict[str, bool], bool]]:
+        """
+        Returns a list of all the possible models with regard to the variables in the proposition, and the respective truth value of the whole proposition given the respective model.
+        """
         variables = self.variables()
         rows = itertools.product([True, False], repeat=len(variables))
         table = []
@@ -83,8 +37,99 @@ class ComplexProposition:
         for row in self.truthtable():
             print(row)
 
+
+class Variable(Proposition):
+    """
+    An atomic proposition consisting of just a propositional variable.
+    """
+
+    def __init__(self, a: str):
+        self.name = a
+
+    def __str__(self):
+        return self.name
+
+    def eval(self, model: Dict[str, bool]) -> bool:
+        if self.name in model:
+            return model[self.name]
+        else:
+            raise KeyError(
+                'The specified model does not include a value for variable '
+                + self.name + ': ' + str(model))
+
+    def variables(self) -> List[str]:
+        return [self.name]
+
+
+class TruthValue(Proposition):
+    """
+    An atomic proposition consisting of just a fixed truth value (true or false).
+    """
+    value: bool
+
+    def __str__(self):
+        return str(self.value)
+
+    def eval(self, _) -> bool:
+        return self.value
+
+    def variables(self) -> List[str]:
+        return []
+
+
+class T(TruthValue):
+    def __init__(self):
+        self.value = True
+
+
+class F(TruthValue):
+    def __init__(self):
+        self.value = False
+
+
+class ComplexProposition(Proposition):
+    """
+    Proposition consisting of one or more other complex or atomic propositions, and an operator on them.
+    """
+
+    children: List[Proposition]
+
+    def __init__(self, *args):
+        self.children = []
+        for arg in args:
+            if type(arg) is str:
+                # Shortcut for creating an atomic proposition without needing to call `AtomicProposition()` explicitly.
+                child = Variable(arg)
+            elif isinstance(arg, Proposition):
+                child = arg
+            self.children.append(child)
+
+    def __str__(self):
+        children = self.children
+        op = self.operator_symbol
+        if len(children) == 1:
+            s = op + str(children[0])
+        elif len(children) == 2:
+            s = str(children[0]) + ' ' + op + ' ' + str(children[1])
+        else:
+            s = op + ' ' + [str(child) for child in children].join(' ')
+        return '(' + s + ')'
+
+    def eval(self, model: Dict[str, bool]) -> bool:
+        evaluatedChildren = [child.eval(model) for child in self.children]
+        return self.operator(*evaluatedChildren)
+
+    def variables(self) -> List[str]:
+        return sorted(list(set(flat([child.variables() for child in self.children]))))
+
+    """Text symbol of the logical operator connecting the child propositions of the proposition."""
+    operator_symbol: str
+
+    @abstractmethod
     def operator(self, *args: bool) -> bool:
-        raise NotImplementedError
+        """
+        Implementation of the logical operator connecting the child propositions of the proposition.
+        """
 
 
 class And(ComplexProposition):
