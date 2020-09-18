@@ -1,5 +1,4 @@
 from typing import *
-# A library for abstract classes, ABC means Abstract Base Class. Classes can be made abstract by inheriting from ABC.
 from abc import abstractmethod
 import itertools
 
