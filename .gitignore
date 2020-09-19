@@ -14,3 +14,5 @@ __pycache__/
 /.spyderproject
 
 envs/
+.mypy_cache/
+.pytest_cache/
