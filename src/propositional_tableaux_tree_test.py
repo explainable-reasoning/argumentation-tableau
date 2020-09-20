@@ -8,10 +8,8 @@ def test_or():
     node.expand()
     assert str(node) == dedent("""\
                         (A ∨ B)
-                            (A ∨ B)
                             A
                             
-                            (A ∨ B)
                             B
                         """)
 
@@ -21,7 +19,6 @@ def test_and():
     node.expand()
     assert str(node) == dedent("""\
                         (A ∧ B)
-                            (A ∧ B)
                             A
                             B
                         """)
@@ -32,14 +29,10 @@ def test_or_and():
     node.expandRecursively()
     assert str(node) == dedent("""\
                         ((A ∧ B) ∨ C)
-                            ((A ∧ B) ∨ C)
                             (A ∧ B)
-                                ((A ∧ B) ∨ C)
-                                (A ∧ B)
                                 A
                                 B
 
-                            ((A ∧ B) ∨ C)
                             C
                         """)
 
@@ -49,17 +42,10 @@ def test_and_or():
     node.expandRecursively()
     assert str(node) == dedent("""\
                         ((A ∨ B) ∧ C)
-                            ((A ∨ B) ∧ C)
                             (A ∨ B)
                             C
-                                ((A ∨ B) ∧ C)
-                                (A ∨ B)
-                                C
                                 A
 
-                                ((A ∨ B) ∧ C)
-                                (A ∨ B)
-                                C
                                 B
                         """)
 
@@ -69,10 +55,8 @@ def test_implies():
     node.expand()
     assert str(node) == dedent("""\
                         (A → B)
-                            (A → B)
                             (¬A)
 
-                            (A → B)
                             B
                         """)
 
@@ -82,9 +66,53 @@ def test_equal():
     node.expand()
     assert str(node) == dedent("""\
                         (A ↔ B)
-                            (A ↔ B)
                             (A → B)
-
-                            (A ↔ B)
                             (B → A)
+                        """)
+
+
+def test_complex():
+    # Example from Smullyan 1995, p. 16
+    node = Node([(Argument(
+        Support(),
+        Not(
+            Implies(
+                Or('p', And('q', 'r')),
+                And(Or('p', 'q'), Or('p', 'r')))
+        )
+    ), False)])
+    node.expandRecursively()
+    # Smullyan's solutions is slightly different, since they expand the nodes in different order.
+    # I think this solution is more systematic (though slightly more verbose).
+    assert str(node) == dedent("""\
+                        (¬((p ∨ (q ∧ r)) → ((p ∨ q) ∧ (p ∨ r))))
+                            (p ∨ (q ∧ r))
+                            (¬((p ∨ q) ∧ (p ∨ r)))
+                                p
+                                (¬(p ∨ q))
+                                    (¬p)
+                                    (¬q)
+                                    ❌
+
+                                p
+                                (¬(p ∨ r))
+                                    (¬p)
+                                    (¬r)
+                                    ❌
+
+                                (q ∧ r)
+                                (¬(p ∨ q))
+                                    q
+                                    r
+                                    (¬p)
+                                    (¬q)
+                                    ❌
+
+                                (q ∧ r)
+                                (¬(p ∨ r))
+                                    q
+                                    r
+                                    (¬p)
+                                    (¬r)
+                                    ❌
                         """)
