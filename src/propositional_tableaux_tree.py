@@ -45,7 +45,7 @@ def is_satisfiable(argument: Argument) -> bool:
     (The support is ignored at the moment.)
     """
     tableau = Tableau(argument)
-    return tableau.is_satisfiable()
+    return not tableau.is_invalid()
 
 
 class Tableau:
@@ -56,9 +56,6 @@ class Tableau:
 
     def is_invalid(self) -> bool:
         return self.root.is_invalid()
-
-    def is_satisfiable(self) -> bool:
-        return self.root.is_satisfiable()
 
 
 class Node:
@@ -190,10 +187,3 @@ class Node:
             return all([child.is_invalid() for child in children])
         else:
             return self.closed
-
-    def is_satisfiable(self):
-        self.expandRecursively()
-        if len(self.children) > 0:
-            return any([child.is_satisfiable() for child in children])
-        else:
-            return not self.closed
