@@ -60,11 +60,11 @@ downloads: {}
 # Use `anaconda-project add-packages` to add packages.
 #
 packages:
-- anaconda
+  - anaconda
 
-- python
-- mypy
-- pytest
+  - python
+  - mypy
+  - pytest
 #
 # In the channels section, list any Conda channel URLs to be searched
 # for packages.
@@ -74,7 +74,8 @@ packages:
 # channels:
 #    - mychannel
 #
-channels: []
+channels:
+  - conda-forge
 
 #
 # In the platforms section, list platforms the project should work on
@@ -82,9 +83,9 @@ channels: []
 # Use `anaconda-project add-platforms` to add platforms.
 #
 platforms:
-- linux-64
-- osx-64
-- win-64
+  - linux-64
+  - osx-64
+  - win-64
 
 #
 # You can define multiple, named environment specs.
