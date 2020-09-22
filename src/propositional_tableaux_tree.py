@@ -101,7 +101,7 @@ class Node:
 
     def expand(self):
         """
-        Expands all unexpanded arguments. 
+        Expands all unexpanded arguments.
         This means roughly that child nodes are added, where the unexpanded arguments will be replaced using the rewriting rules of propositonal tableau.
         This is slightly complex, since multiple arguments may need to be expanded at the same time, possibly leading to multiple branching.
         This is resolved as follows with the help of the cartesian product:
@@ -115,22 +115,26 @@ class Node:
                       for (arg, alreadyExpanded)
                       in self.arguments
                       if not alreadyExpanded]
-        layers: List[List[Proposition]] = []
+        # Sequents:
+        non_branching: List[Proposition] = []
+        branching: List[List[Proposition]] = []
+        # Old arguments with new sequents, where the expansion may be delayed
+        delayed_branching: List[Proposition] = []
+        # Old arguments without new sequents
         old: List[Proposition] = []
         for argument in unexpanded:
             p = argument.conclusion
             if isinstance(p, And):
-                layers.append([p.children[0]])
-                layers.append([p.children[1]])
+                non_branching += [p.children[0], p.children[1]]
             elif isinstance(p, Or):
-                layers.append([p.children[0],
-                               p.children[1]])
+                branching.append([p.children[0], p.children[1]])
+                delayed_branching.append(p)
             elif isinstance(p, Implies):
-                layers.append([Not(p.children[0]),
-                               p.children[1]])
+                branching.append([Not(p.children[0]), p.children[1]])
+                delayed_branching.append(p)
             elif isinstance(p, Equal):
-                layers.append([Implies(p.children[0], p.children[1])])
-                layers.append([Implies(p.children[1], p.children[0])])
+                non_branching += [Implies(p.children[0], p.children[1]),
+                                  Implies(p.children[1], p.children[0])]
             elif isinstance(p, Variable):
                 if any([isinstance(arg.conclusion, Not)
                         and isinstance(arg.conclusion.children[0], Variable)
@@ -142,19 +146,18 @@ class Node:
             elif isinstance(p, Not):
                 q = p.children[0]
                 if isinstance(q, And):
-                    layers.append([Not(q.children[0]),
-                                   Not(q.children[1])])
+                    branching.append([Not(q.children[0]), Not(q.children[1])])
+                    delayed_branching.append(p)
                 elif isinstance(q, Or):
-                    layers.append([Not(q.children[0])])
-                    layers.append([Not(q.children[1])])
+                    non_branching += [Not(q.children[0]), Not(q.children[1])]
                 elif isinstance(q, Implies):
-                    layers.append([q.children[0]])
-                    layers.append([Not(q.children[1])])
+                    non_branching += [q.children[0], Not(q.children[1])]
                 elif isinstance(q, Equal):
-                    layers.append([Not(Implies(q.children[0], q.children[1])),
-                                   Not(Implies(q.children[1], q.children[0]))])
+                    branching.append([Not(Implies(q.children[0], q.children[1])),
+                                      Not(Implies(q.children[1], q.children[0]))])
+                    delayed_branching.append(p)
                 elif isinstance(q, Not):
-                    layers.append([q.children[0]])
+                    non_branching += [q.children[0]]
                 elif isinstance(q, Variable):
                     if any([isinstance(arg.conclusion, Variable)
                             and q.name == arg.conclusion.name
@@ -166,15 +169,20 @@ class Node:
                     old.append(p)
             else:
                 old.append(p)
-        if len(layers) > 0:
-            for branch in product(*layers):
-                old_arguments = [
-                    (Argument(Support(), arg), True)
-                    for arg in old
-                ]
-                all_arguments = old_arguments + [(Argument(Support(), proposition), False)
-                                                 for proposition in branch]
-                self.children.append(Node(all_arguments))
+        old_arguments = [(Argument(Support(), proposition), True)
+                         for proposition in old]
+        if len(non_branching) > 0:
+            new_arguments = [(Argument(Support(), proposition), False)
+                             for proposition in non_branching + delayed_branching]
+            all_arguments = old_arguments + new_arguments
+            self.children.append(Node(all_arguments))
+        else:
+            for branch in product(*branching):
+                if len(branch) > 0:
+                    new_arguments = [(Argument(Support(), proposition), False)
+                                     for proposition in branch]
+                    all_arguments = old_arguments + new_arguments
+                    self.children.append(Node(all_arguments))
 
     def expandRecursively(self):
         self.expand()

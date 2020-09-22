@@ -116,3 +116,20 @@ def test_complex():
                                     (¬r)
                                     ❌
                         """)
+
+
+def test_expand_nonbranching_first():
+    node = Node([
+        (Argument(Support(), Or('A', 'B')), False),
+        (Argument(Support(), And('C', 'D')), False)
+        ])
+    node.expandRecursively()
+    assert str(node) == dedent("""\
+                        (A ∨ B)
+                        (C ∧ D)
+                            C
+                            D
+                                A
+
+                                B
+                        """)
