@@ -1,167 +1,131 @@
 from propositional_logic import *
 from typing import Tuple, List
-from itertools import product
 
 
-class Support:
-    """
-    Support for an argument. This doesn't do anything. The `Tableau` works on `Argument`s, so we will just always use an empty `Support` to create an `Argument`.
-    """
-
-    def __init__(self, *args):
-        pass
-
-    @staticmethod
-    def union(self, support1, support2):
-        pass
-
-
-class Argument:
-    """
-    Argument, consisting of a support (which is not yet used) and a conclusion (which is a proposition).
-    """
-    support: Support
-    conclusion: Proposition
-
-    def __init__(self, support: Support, conclusion: Proposition):
-        self.support = support
-        self.conclusion = conclusion
-
-
-def is_valid(argument: Argument) -> bool:
+def is_valid(proposition: Proposition) -> bool:
     """
     Checks whether an argument is valid:
     Whether the conclusion holds in every possible situation, given the support.
-    (The support is ignored at the moment.)
     """
-    tableau = Tableau(Argument(argument.support, Not(argument.conclusion)))
+    tableau = Tableau(Not(argument.conclusion))
     return tableau.is_invalid()
 
 
-def is_satisfiable(argument: Argument) -> bool:
+def is_satisfiable(proposition: Proposition) -> bool:
     """
     Checks whether a proposition is satisfiable:
     Whether it is true in at least one possible situation, given the support.
-    (The support is ignored at the moment.)
     """
     tableau = Tableau(argument)
-    return tableau.is_satisfiable()
+    return not tableau.is_invalid()
 
 
 class Tableau:
     root: 'Node'
 
-    def __init__(self, argument: Argument):
-        root = Node([(argument, False)])
+    def __init__(self, proposition: Proposition):
+        root = Node([(proposition, False)])
 
     def is_invalid(self) -> bool:
         return self.root.is_invalid()
-
-    def is_satisfiable(self) -> bool:
-        return self.root.is_satisfiable()
 
 
 class Node:
     """
     Node of a propositional tableau.
-    Contains a list of arguments, along with information whether they have already been rewritten by using a rule.
+    Contains a list of propositions, along with information whether they have already been rewritten by using a rule.
     Can be expanded, and then it may have child nodes.
     """
-    arguments: List[Tuple[Argument, bool]]
+    arguments: List[Tuple[Proposition, bool]]
 
     children: List['Node']
 
     closed: bool
 
-    def __init__(self, arguments: List[Tuple[Argument, bool]]):
+    def __init__(self, propositions: List[Tuple[Proposition, bool]]):
         """
         Make a new node.
         Takes a list of pairs, where each pair consists of:
-        - An argument.
-        - A boolean indicating whether the argument has already been rewritten using one of the rules.
+        - A proposition.
+        - A boolean indicating whether the proposition has already been rewritten using one of the rules.
           This information is important, since in propositional tableaux, every rule needs be rewritten only once. (Roos, L4AI, p. 34)
         """
-        self.arguments = arguments
+        self.propositions = propositions
         self.children = []
         self.closed = False
 
-    def __str__(self, indent='', parentConclusions=[]):
+    def __str__(self, indent='', parentPropositions=[]):
         """
         Stringifies a node and its child nodes in the shape of a tree.
         Optional arguments:
         - An indent. For the tree shape, every node will just call the string method of its child nodes, with a bigger indent.
-        - The conclusions of the parent. These will be ignored for the output string, since they would be redundant.
+        - The propositions of the parent. These will be ignored for the output string, since they would be redundant.
         Multiple propositions within one node will be printed in consecutive lines.
         Multiple nodes are separated by a blank line.
         """
-        conclusions = [str(arg.conclusion) for (arg, _) in self.arguments]
+        propositions = [str(p) for (p, _) in self.propositions]
         return (indent
-                + ('\n' + indent).join([c for c in conclusions
-                                        if c not in parentConclusions])
+                + ('\n' + indent).join([p for p in propositions
+                                        if p not in parentPropositions])
                 + '\n'
                 + (indent + '❌\n' if self.closed else "")
-                + '\n'.join([child.__str__(indent + '    ', conclusions) for child in self.children]))
+                + '\n'.join([child.__str__(indent + '    ', propositions) for child in self.children]))
 
     def expand(self):
         """
-        Expands all unexpanded arguments. 
-        This means roughly that child nodes are added, where the unexpanded arguments will be replaced using the rewriting rules of propositonal tableau.
-        This is slightly complex, since multiple arguments may need to be expanded at the same time, possibly leading to multiple branching.
-        This is resolved as follows with the help of the cartesian product:
-            The sequents of each unexpanded argument are added to the `layers` list:
-            - If the rewriting rule requires no branching, both sequents should be contained in all branches. They are therefore added separately (each inside a singleton list) to the `layers` list.
-            - If the rewriting rule requires branching, the sequents should not occur together in any branch. They are therefore added together (inside a list of two elements) to the `layers` list.
-            Afterwards, the cartesian product of the list is taken, yielding a list of all branches.
-            The already expanded arguments are added to each list, and a child node is created for each list.
+        Expands the next unexpanded argument.
+        This means roughly that child nodes are added, where the unexpanded propositions will be replaced using the rewriting rules of propositonal tableau.
+        One proposition is expanded at a time. If there are propositions whose expansion is non-branching, they will be considered first, to reduce redundancy in the new branches.
         """
-        unexpanded = [arg
-                      for (arg, alreadyExpanded)
-                      in self.arguments
+        unexpanded = [p for (p, alreadyExpanded) in self.propositions
                       if not alreadyExpanded]
-        layers: List[List[Proposition]] = []
-        old: List[Proposition] = []
-        for argument in unexpanded:
-            p = argument.conclusion
+        # Sequents:
+        non_branching: List[Proposition] = []
+        branching: List[List[Proposition]] = []
+        # Old arguments with new sequents, where the expansion may be delayed
+        delayed_branching: List[Proposition] = []
+        # Old arguments without new sequents
+        old: List[Proposition] = [p for (p, alreadyExpanded) in self.propositions
+                                  if alreadyExpanded]
+        for p in unexpanded:
             if isinstance(p, And):
-                layers.append([p.children[0]])
-                layers.append([p.children[1]])
+                non_branching += [p.children[0], p.children[1]]
             elif isinstance(p, Or):
-                layers.append([p.children[0],
-                               p.children[1]])
+                branching.append([p.children[0], p.children[1]])
+                delayed_branching.append(p)
             elif isinstance(p, Implies):
-                layers.append([Not(p.children[0]),
-                               p.children[1]])
+                branching.append([Not(p.children[0]), p.children[1]])
+                delayed_branching.append(p)
             elif isinstance(p, Equal):
-                layers.append([Implies(p.children[0], p.children[1])])
-                layers.append([Implies(p.children[1], p.children[0])])
+                non_branching += [Implies(p.children[0], p.children[1]),
+                                  Implies(p.children[1], p.children[0])]
             elif isinstance(p, Variable):
-                if any([isinstance(arg.conclusion, Not)
-                        and isinstance(arg.conclusion.children[0], Variable)
-                        and p.name == arg.conclusion.children[0].name
-                        for (arg, _) in self.arguments]):
+                if any([isinstance(x, Not)
+                        and isinstance(x.children[0], Variable)
+                        and p.name == x.children[0].name
+                        for (x, _) in self.propositions]):
                     self.closed = True
                 else:
                     old.append(p)
             elif isinstance(p, Not):
                 q = p.children[0]
                 if isinstance(q, And):
-                    layers.append([Not(q.children[0]),
-                                   Not(q.children[1])])
+                    branching.append([Not(q.children[0]), Not(q.children[1])])
+                    delayed_branching.append(p)
                 elif isinstance(q, Or):
-                    layers.append([Not(q.children[0])])
-                    layers.append([Not(q.children[1])])
+                    non_branching += [Not(q.children[0]), Not(q.children[1])]
                 elif isinstance(q, Implies):
-                    layers.append([q.children[0]])
-                    layers.append([Not(q.children[1])])
+                    non_branching += [q.children[0], Not(q.children[1])]
                 elif isinstance(q, Equal):
-                    layers.append([Not(Implies(q.children[0], q.children[1])),
-                                   Not(Implies(q.children[1], q.children[0]))])
+                    branching.append([Not(Implies(q.children[0], q.children[1])),
+                                      Not(Implies(q.children[1], q.children[0]))])
+                    delayed_branching.append(p)
                 elif isinstance(q, Not):
-                    layers.append([q.children[0]])
+                    non_branching += [q.children[0]]
                 elif isinstance(q, Variable):
-                    if any([isinstance(arg.conclusion, Variable)
-                            and q.name == arg.conclusion.name
-                            for (arg, _) in self.arguments]):
+                    if any([isinstance(x, Variable)
+                            and q.name == x.name
+                            for (x, _) in self.propositions]):
                         self.closed = True
                     else:
                         old.append(p)
@@ -169,15 +133,16 @@ class Node:
                     old.append(p)
             else:
                 old.append(p)
-        if len(layers) > 0:
-            for branch in product(*layers):
-                old_arguments = [
-                    (Argument(Support(), arg), True)
-                    for arg in old
-                ]
-                all_arguments = old_arguments + [(Argument(Support(), proposition), False)
-                                                 for proposition in branch]
-                self.children.append(Node(all_arguments))
+        old_ = [(p, True) for p in old]
+        if len(non_branching) > 0:
+            new = [(proposition, False) for proposition
+                   in non_branching + delayed_branching]
+            self.children.append(Node(old_ + new))
+        elif len(branching) > 0:
+            for branch in branching[0]:
+                new = [(proposition, False) for proposition
+                       in [branch] + delayed_branching[1:]]
+                self.children.append(Node(old_ + new))
 
     def expandRecursively(self):
         self.expand()
@@ -190,10 +155,3 @@ class Node:
             return all([child.is_invalid() for child in children])
         else:
             return self.closed
-
-    def is_satisfiable(self):
-        self.expandRecursively()
-        if len(self.children) > 0:
-            return any([child.is_satisfiable() for child in children])
-        else:
-            return not self.closed

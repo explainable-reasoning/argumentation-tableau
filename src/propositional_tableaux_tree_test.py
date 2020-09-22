@@ -4,7 +4,7 @@ from textwrap import dedent
 
 
 def test_or():
-    node = Node([(Argument(Support(), Or('A', 'B')), False)])
+    node = Node([(Or('A', 'B'), False)])
     node.expand()
     assert str(node) == dedent("""\
                         (A ∨ B)
@@ -15,7 +15,7 @@ def test_or():
 
 
 def test_and():
-    node = Node([(Argument(Support(), And('A', 'B')), False)])
+    node = Node([(And('A', 'B'), False)])
     node.expand()
     assert str(node) == dedent("""\
                         (A ∧ B)
@@ -25,7 +25,7 @@ def test_and():
 
 
 def test_or_and():
-    node = Node([(Argument(Support(), Or(And('A', 'B'), 'C')), False)])
+    node = Node([(Or(And('A', 'B'), 'C'), False)])
     node.expandRecursively()
     assert str(node) == dedent("""\
                         ((A ∧ B) ∨ C)
@@ -38,7 +38,7 @@ def test_or_and():
 
 
 def test_and_or():
-    node = Node([(Argument(Support(), And(Or('A', 'B'), 'C')), False)])
+    node = Node([(And(Or('A', 'B'), 'C'), False)])
     node.expandRecursively()
     assert str(node) == dedent("""\
                         ((A ∨ B) ∧ C)
@@ -51,7 +51,7 @@ def test_and_or():
 
 
 def test_implies():
-    node = Node([(Argument(Support(), Implies('A', 'B')), False)])
+    node = Node([(Implies('A', 'B'), False)])
     node.expand()
     assert str(node) == dedent("""\
                         (A → B)
@@ -62,7 +62,7 @@ def test_implies():
 
 
 def test_equal():
-    node = Node([(Argument(Support(), Equal('A', 'B')), False)])
+    node = Node([(Equal('A', 'B'), False)])
     node.expand()
     assert str(node) == dedent("""\
                         (A ↔ B)
@@ -73,46 +73,57 @@ def test_equal():
 
 def test_complex():
     # Example from Smullyan 1995, p. 16
-    node = Node([(Argument(
-        Support(),
+    node = Node([(
         Not(
             Implies(
                 Or('p', And('q', 'r')),
                 And(Or('p', 'q'), Or('p', 'r')))
-        )
-    ), False)])
+
+        ),
+        False)])
     node.expandRecursively()
-    # Smullyan's solutions is slightly different, since they expand the nodes in different order.
-    # I think this solution is more systematic (though slightly more verbose).
     assert str(node) == dedent("""\
                         (¬((p ∨ (q ∧ r)) → ((p ∨ q) ∧ (p ∨ r))))
                             (p ∨ (q ∧ r))
                             (¬((p ∨ q) ∧ (p ∨ r)))
                                 p
-                                (¬(p ∨ q))
-                                    (¬p)
-                                    (¬q)
-                                    ❌
+                                    (¬(p ∨ q))
+                                        (¬p)
+                                        (¬q)
+                                        ❌
 
-                                p
-                                (¬(p ∨ r))
-                                    (¬p)
-                                    (¬r)
-                                    ❌
-
-                                (q ∧ r)
-                                (¬(p ∨ q))
-                                    q
-                                    r
-                                    (¬p)
-                                    (¬q)
-                                    ❌
+                                    (¬(p ∨ r))
+                                        (¬p)
+                                        (¬r)
+                                        ❌
 
                                 (q ∧ r)
-                                (¬(p ∨ r))
                                     q
                                     r
-                                    (¬p)
-                                    (¬r)
-                                    ❌
+                                        (¬(p ∨ q))
+                                            (¬p)
+                                            (¬q)
+                                            ❌
+
+                                        (¬(p ∨ r))
+                                            (¬p)
+                                            (¬r)
+                                            ❌
+                        """)
+
+
+def test_expand_nonbranching_first():
+    node = Node([
+        (Or('A', 'B'), False),
+        (And('C', 'D'), False)
+    ])
+    node.expandRecursively()
+    assert str(node) == dedent("""\
+                        (A ∨ B)
+                        (C ∧ D)
+                            C
+                            D
+                                A
+
+                                B
                         """)
