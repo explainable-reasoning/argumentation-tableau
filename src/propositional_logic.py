@@ -101,6 +101,8 @@ class ComplexProposition(Proposition):
                 child = Variable(arg)
             elif isinstance(arg, Proposition):
                 child = arg
+            else:
+                raise Exception('Wrong type of child expression: ' + str(type(arg)))
             self.children.append(child)
 
     def __str__(self):
@@ -146,7 +148,7 @@ class Implies(ComplexProposition):
     def operator(self, a, b): return b or (not a)
 
 
-class Equal(ComplexProposition):
+class Equiv(ComplexProposition):
     operator_symbol = '↔'
     def operator(self, a, b): return a == b
 
