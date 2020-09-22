@@ -1,22 +1,23 @@
 from propositional_logic import *
+from propositional_parser import toProposition
 from typing import Tuple, List
 
 
-def is_valid(proposition: Proposition) -> bool:
+def is_valid(proposition) -> bool:
     """
     Checks whether an argument is valid:
     Whether the conclusion holds in every possible situation, given the support.
     """
-    tableau = Tableau(Not(argument.conclusion))
+    tableau = Tableau(Not(toProposition(proposition)))
     return tableau.is_invalid()
 
 
-def is_satisfiable(proposition: Proposition) -> bool:
+def is_satisfiable(proposition) -> bool:
     """
     Checks whether a proposition is satisfiable:
     Whether it is true in at least one possible situation, given the support.
     """
-    tableau = Tableau(argument)
+    tableau = Tableau(toProposition(proposition))
     return not tableau.is_invalid()
 
 
@@ -96,7 +97,7 @@ class Node:
             elif isinstance(p, Implies):
                 branching.append([Not(p.children[0]), p.children[1]])
                 delayed_branching.append(p)
-            elif isinstance(p, Equal):
+            elif isinstance(p, Equiv):
                 non_branching += [Implies(p.children[0], p.children[1]),
                                   Implies(p.children[1], p.children[0])]
             elif isinstance(p, Variable):
@@ -116,7 +117,7 @@ class Node:
                     non_branching += [Not(q.children[0]), Not(q.children[1])]
                 elif isinstance(q, Implies):
                     non_branching += [q.children[0], Not(q.children[1])]
-                elif isinstance(q, Equal):
+                elif isinstance(q, Equiv):
                     branching.append([Not(Implies(q.children[0], q.children[1])),
                                       Not(Implies(q.children[1], q.children[0]))])
                     delayed_branching.append(p)

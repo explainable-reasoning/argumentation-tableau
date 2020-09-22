@@ -23,12 +23,6 @@ logic_grammar = r"""
 """
 
 
-def lift(f):
-    def g(*xs):
-        return f(*[x.children[0] for x in xs])
-    return g
-
-
 @v_args(inline=True)
 class TreeToJson2(Transformer):
     from propositional_logic import Not, And, Or, Implies, Equiv
@@ -77,3 +71,11 @@ def parse(a):
                 parser='lalr',
                 transformer=TreeToJson2()
                 ).parse(a)
+
+def toProposition(a):
+    if type(a) is str:
+        return parse(a)
+    elif isinstance(a, Proposition):
+        return a
+    else:
+        raise Exception('Cannot convert to proposition. Input must be either proposition or string.')
