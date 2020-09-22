@@ -1,6 +1,5 @@
 from propositional_logic import *
 from typing import Tuple, List
-from itertools import product
 
 
 class Support:
@@ -101,15 +100,9 @@ class Node:
 
     def expand(self):
         """
-        Expands all unexpanded arguments.
+        Expands the next unexpanded argument.
         This means roughly that child nodes are added, where the unexpanded arguments will be replaced using the rewriting rules of propositonal tableau.
-        This is slightly complex, since multiple arguments may need to be expanded at the same time, possibly leading to multiple branching.
-        This is resolved as follows with the help of the cartesian product:
-            The sequents of each unexpanded argument are added to the `layers` list:
-            - If the rewriting rule requires no branching, both sequents should be contained in all branches. They are therefore added separately (each inside a singleton list) to the `layers` list.
-            - If the rewriting rule requires branching, the sequents should not occur together in any branch. They are therefore added together (inside a list of two elements) to the `layers` list.
-            Afterwards, the cartesian product of the list is taken, yielding a list of all branches.
-            The already expanded arguments are added to each list, and a child node is created for each list.
+        One proposition is expanded at a time. If there are propositions whose expansion is non-branching, they will be considered first, to reduce redundancy in the new branches.
         """
         unexpanded = [arg
                       for (arg, alreadyExpanded)
@@ -121,7 +114,10 @@ class Node:
         # Old arguments with new sequents, where the expansion may be delayed
         delayed_branching: List[Proposition] = []
         # Old arguments without new sequents
-        old: List[Proposition] = []
+        old: List[Proposition] = [arg.conclusion
+                                  for (arg, alreadyExpanded)
+                                  in self.arguments
+                                  if alreadyExpanded]
         for argument in unexpanded:
             p = argument.conclusion
             if isinstance(p, And):
@@ -176,13 +172,13 @@ class Node:
                              for proposition in non_branching + delayed_branching]
             all_arguments = old_arguments + new_arguments
             self.children.append(Node(all_arguments))
-        else:
-            for branch in product(*branching):
-                if len(branch) > 0:
-                    new_arguments = [(Argument(Support(), proposition), False)
-                                     for proposition in branch]
-                    all_arguments = old_arguments + new_arguments
-                    self.children.append(Node(all_arguments))
+        elif len(branching) > 0:
+            for branch in branching[0]:
+                new_arguments = ([(Argument(Support(), branch), False)] +
+                                 [(Argument(Support(), proposition), False)
+                                  for proposition in delayed_branching[1:]])
+                all_arguments = old_arguments + new_arguments
+                self.children.append(Node(all_arguments))
 
     def expandRecursively(self):
         self.expand()
