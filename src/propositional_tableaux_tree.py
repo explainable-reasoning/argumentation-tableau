@@ -24,8 +24,12 @@ def is_satisfiable(proposition) -> bool:
 class Tableau:
     root: 'Node'
 
-    def __init__(self, proposition: Proposition):
-        root = Node([(proposition, False)])
+    def __init__(self, proposition):
+        self.root = Node([(toProposition(proposition), False)])
+        self.root.expandRecursively()
+
+    def __str__(self):
+        return str(self.root)
 
     def is_invalid(self) -> bool:
         return self.root.is_invalid()

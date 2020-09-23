@@ -17,7 +17,7 @@ logic_grammar = r"""
     or      : "∨" | "or"i  | "|"~1..2 | "v" | "/"
     implies : "→" | "->" | "-->" | /imp(l(y|ies)?)?/i
     implied : "←" | "<-" | "<--"
-    equiv   : "↔" | "<->" | /eq(u(iv|als?))?/i
+    equiv   : "↔" | "<->" | /eq(u((iv(alent)?)|(als?)))?/i
     %import common.WS
     %ignore WS
 """

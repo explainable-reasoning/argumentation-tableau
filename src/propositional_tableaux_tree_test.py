@@ -8,7 +8,7 @@ def test_or():
     node = Node([(parse('A ∨ B'), False)])
     node.expand()
     assert str(node) == dedent("""\
-                        (A ∨ B)
+                        A ∨ B
                             A
 
                             B
@@ -19,7 +19,7 @@ def test_and():
     node=Node([(parse('A ∧ B'), False)])
     node.expand()
     assert str(node) == dedent("""\
-                        (A ∧ B)
+                        A ∧ B
                             A
                             B
                         """)
@@ -29,8 +29,8 @@ def test_or_and():
     node=Node([(parse('(A ∧ B) ∨ C'), False)])
     node.expandRecursively()
     assert str(node) == dedent("""\
-                        ((A ∧ B) ∨ C)
-                            (A ∧ B)
+                        (A ∧ B) ∨ C
+                            A ∧ B
                                 A
                                 B
 
@@ -42,8 +42,8 @@ def test_and_or():
     node=Node([(parse('(A ∨ B) ∧ C'), False)])
     node.expandRecursively()
     assert str(node) == dedent("""\
-                        ((A ∨ B) ∧ C)
-                            (A ∨ B)
+                        (A ∨ B) ∧ C
+                            A ∨ B
                             C
                                 A
 
@@ -55,8 +55,8 @@ def test_implies():
     node=Node([(parse('A → B'), False)])
     node.expand()
     assert str(node) == dedent("""\
-                        (A → B)
-                            (¬A)
+                        A → B
+                            ¬A
 
                             B
                         """)
@@ -66,9 +66,9 @@ def test_equal():
     node=Node([(parse('A ↔ B'), False)])
     node.expand()
     assert str(node) == dedent("""\
-                        (A ↔ B)
-                            (A → B)
-                            (B → A)
+                        A ↔ B
+                            A → B
+                            B → A
                         """)
 
 
@@ -77,31 +77,31 @@ def test_complex():
     node=Node([(parse('¬((p ∨ (q ∧ r)) → ((p ∨ q) ∧ (p ∨ r)))'), False)])
     node.expandRecursively()
     assert str(node) == dedent("""\
-                        (¬((p ∨ (q ∧ r)) → ((p ∨ q) ∧ (p ∨ r))))
-                            (p ∨ (q ∧ r))
-                            (¬((p ∨ q) ∧ (p ∨ r)))
+                        ¬((p ∨ (q ∧ r)) → ((p ∨ q) ∧ (p ∨ r)))
+                            p ∨ (q ∧ r)
+                            ¬((p ∨ q) ∧ (p ∨ r))
                                 p
-                                    (¬(p ∨ q))
-                                        (¬p)
-                                        (¬q)
+                                    ¬(p ∨ q)
+                                        ¬p
+                                        ¬q
                                         ❌
 
-                                    (¬(p ∨ r))
-                                        (¬p)
-                                        (¬r)
+                                    ¬(p ∨ r)
+                                        ¬p
+                                        ¬r
                                         ❌
 
-                                (q ∧ r)
+                                q ∧ r
                                     q
                                     r
-                                        (¬(p ∨ q))
-                                            (¬p)
-                                            (¬q)
+                                        ¬(p ∨ q)
+                                            ¬p
+                                            ¬q
                                             ❌
 
-                                        (¬(p ∨ r))
-                                            (¬p)
-                                            (¬r)
+                                        ¬(p ∨ r)
+                                            ¬p
+                                            ¬r
                                             ❌
                         """)
 
@@ -113,8 +113,8 @@ def test_expand_nonbranching_first():
     ])
     node.expandRecursively()
     assert str(node) == dedent("""\
-                        (A ∨ B)
-                        (C ∧ D)
+                        A ∨ B
+                        C ∧ D
                             C
                             D
                                 A
