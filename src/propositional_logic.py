@@ -101,18 +101,25 @@ class ComplexProposition(Proposition):
                 child = Variable(arg)
             elif isinstance(arg, Proposition):
                 child = arg
+            else:
+                raise Exception(
+                    'Wrong type of child expression: ' + str(type(arg)))
             self.children.append(child)
 
     def __str__(self):
         children = self.children
         op = self.operator_symbol
+
+        def brackets(a):
+            if isinstance(a, ComplexProposition) and not isinstance(a, Not):
+                return "(" + str(a) + ")"
+            else:
+                return str(a)
         if len(children) == 1:
-            s = op + str(children[0])
+            s = op + brackets(children[0])
         elif len(children) == 2:
-            s = str(children[0]) + ' ' + op + ' ' + str(children[1])
-        else:
-            s = op + ' ' + [str(child) for child in children].join(' ')
-        return '(' + s + ')'
+            s = brackets(children[0]) + ' ' + op + ' ' + brackets(children[1])
+        return s
 
     def eval(self, model: Dict[str, bool]) -> bool:
         evaluatedChildren = [child.eval(model) for child in self.children]
@@ -146,7 +153,7 @@ class Implies(ComplexProposition):
     def operator(self, a, b): return b or (not a)
 
 
-class Equal(ComplexProposition):
+class Equiv(ComplexProposition):
     operator_symbol = '↔'
     def operator(self, a, b): return a == b
 
