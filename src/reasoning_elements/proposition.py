@@ -9,7 +9,7 @@ class Proposition:
         return "to string method not yet implemented for propositions"
 
     def decompose(self):
-
+        return None
 
 class old_Proposition:
     """

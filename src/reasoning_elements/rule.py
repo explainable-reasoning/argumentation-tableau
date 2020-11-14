@@ -1,9 +1,10 @@
 class Rule:
-    antecedence = []
-    basic_antecedence = []
-    consequence = []
 
-    def __init__(self, antecedence, consequence):
+    def __init__(self, antecedence, consequence,default_defeasible_level = 5):
+        self.antecedence = []
+        self.basic_antecedence = []
+        self.consequence = []
+        self.defeasible_level = default_defeasible_level
         # decompose antecendece
         self.antecedence = antecedence # contains all primitive propositions that need to be true to make the antecendence true
         # FIXME that should probably be multiple sets of propositions to account for disjunctive statements!!!
