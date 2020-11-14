@@ -43,12 +43,6 @@ class Node:
     """
     arguments: List[Tuple[Proposition, bool]]
 
-    root: List # list with rules, list with propositions, list of tests?
-    support: List
-    atomic_propositions: List
-    rules: List
-    #critical tests??
-
     children: List['Node']
 
     closed: bool
@@ -82,95 +76,7 @@ class Node:
                 + (indent + '❌\n' if self.closed else "")
                 + '\n'.join([child.__str__(indent + '    ', propositions) for child in self.children]))
 
-    """
-    Arguments: composed of sub arguments (can alternate between rules and propositions)
-            evaluate subarguments in order ??
-
-    rules:  check conditions
-            apply to all child nodes
-
-    propositions: check for decomposition
-            evaluate if atomic
-
-    tests:  check conditions #what happens if a failing test does not lead to contradiction
-            create tests for all atomic propositions in root; evaluate in all children
-
-    => all can be in one node
-
-    what happens in a node? -> 1) evaluate propositions
-                            2) evaluate test
-                            3) apply rules
-
-    if there are contradictions in a branch, do ... ??
-
-    if nothing is left to do in one branch, check if it is closed
-        -> if so, return all the arguments leading to the closure
-
-
-
-    Node(
-        - root propositions, tests, rules
-        - current support ("activated" propositions and rules)
-        - currently evaluated atomic propositions
-    )
-
-    tableau: Arguments
-A1 |- A2 |- A3 |- A4
-A1 -> add everything to root -> evaluate, apply rules and tests etc.
-A2 -> add everything to same root -> evaluate...
-.
-.
-.
-
-    """
-
-
-
     def expand(self):
-        evaluate_propositions(propositions)
-
-        evaluate_tests()
-
-        apply_rules()
-
-
-        return
-
-    def evaluate_propositions(propositions, complex_propositions):
-        for proposition in propositions:
-            decomposed_basic, decomposed_complex = proposition.decompose(complex_propositions)
-            # we might add the branching rules to some rule object which is included in the complex propositions
-            basic_propositions.append(decomposed_basic)
-            complex_propositions.append(decomposed_complex)
-
-        return
-
-    def evaluate_tests(tests, current_support):
-        for test in tests:
-            # check if the test for any basic proposition has been evalueated yet in this branch
-            # and if the support allows for any untested tests
-            # is the current support sufficient to sufficiently evlauate tests?
-
-            tested_proposition = test.check(basic_propositions)
-            if len(tested_proposition) > 0:
-                # should we also remember the original complex propositions from where the basic proposition was derived
-                # and add it to the current support in case all the atomic propositions are tested accordingly?
-                current_support.append(tested_proposition)
-        return
-
-    def apply_rules(rules, current_support):
-        #FIXME somehow avoid circularity for the application of rules!!
-        for rule in rules:
-            if rule.check_antecedence(current_support):
-                evaluate_propositions(rule.consequence, complex_propositions)
-                evaluate_tests(tests, current_support)
-                # maybe a call to expand(self) function does exactly what needs to be done here,
-                # but it might not be warranted here to create new branches and such in the same step as we evaluate the rules
-
-
-        return
-
-    def expand_old(self):
         """
         Expands the next unexpanded argument.
         This means roughly that child nodes are added, where the unexpanded propositions will be replaced using the rewriting rules of propositonal tableau.
@@ -254,4 +160,3 @@ A2 -> add everything to same root -> evaluate...
             return all([child.is_invalid() for child in children])
         else:
             return self.closed
-
