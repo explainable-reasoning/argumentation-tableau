@@ -1,5 +1,5 @@
-from propositional_logic import *
-from propositional_tableaux_tree import *
+from reasoning_elements.proposition import *
+from propositional_tableau import *
 from propositional_parser import parse
 from textwrap import dedent
 

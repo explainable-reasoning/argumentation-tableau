@@ -1,4 +1,4 @@
-from propositional_logic import *
+from reasoning_elements.proposition import *
 from propositional_parser import toProposition
 from typing import Tuple, List
 

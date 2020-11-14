@@ -1,6 +1,5 @@
 from typing import *
-from propositional_logic import *
-from reasoning_elements import *
+from reasoning_elements.proposition import *
 
 
 # mypy src/__main__.py

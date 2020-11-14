@@ -1,6 +1,4 @@
-# this uses pytest https://docs.pytest.org/en/latest/
-
-from propositional_logic import *
+from reasoning_elements.proposition import *
 
 
 def test():

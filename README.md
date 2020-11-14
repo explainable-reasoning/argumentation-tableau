@@ -8,5 +8,5 @@
 - [Documentation for poetry](https://python-poetry.org/docs/basic-usage/)
 - Important commands:
   - `poetry run python src/__main__.py` for running
-  - `poetry run mypy src/__main__.py` for typechecking
+  - `poetry run mypy src/__main__.py --namespace-packages` for typechecking
   - `poetry run pytest src/*_test.py` for testing

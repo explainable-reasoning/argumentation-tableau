@@ -1,4 +1,4 @@
-from propositional_logic import *
+from reasoning_elements.proposition import *
 from lark import Lark, Transformer, v_args, Tree
 
 logic_grammar = r"""
@@ -25,7 +25,7 @@ logic_grammar = r"""
 
 @v_args(inline=True)
 class TreeToJson2(Transformer):
-    from propositional_logic import Not, And, Or, Implies, Equiv
+    from reasoning_elements.proposition import Not, And, Or, Implies, Equiv
 
     ops = {"and": And,
            "or": Or,
