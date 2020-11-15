@@ -99,7 +99,7 @@ class Node:
         for child in self.children:
             child.expand()
 
-    def arguments_for_inconsistency(self):
+    def arguments_for_inconsistency(self) -> List[Argument]:
         """
         Return all arguments for an inconsistency in the node or in any child node.
         We do this by considering the inconsistencies in the leaf nodes and then merging them together
@@ -108,27 +108,26 @@ class Node:
         because we won't be able to convert hese inconsistencies into useful constructive arguments later.
         Inconsistencies are arguments with `F()` ("false", or ⟘) in their support.
         """
+        arguments: List[Argument] = []
         if len(self.children) == 0:
             # Here we are at a leaf node.
             # We find and return arguments where the conclusion is an inconsistency
             # and where the support includes at most one test.
-            arguments: List[Argument] = []
+            
             for a in self.arguments:
                 if a.conclusion == F():
                     tests = [s for s in a.support if isinstance(s, Test)]
                     if len(tests) <= 1:
                         arguments.append(a)
-            return arguments
         elif len(self.children) == 1:
             # Here we are in a straight branch.
             # We just pass upwards all the inconsistencies from the only child.
-            return self.children[0].arguments_for_inconsistency()
+            arguments = self.children[0].arguments_for_inconsistency()
         elif len(self.children) == 2:
             # Here we are at a fork between two branches. This is the most complicated position.
             # The support for the closure of the node is the union of the support for the closure of the children.
             # But: There may be multiple such supports per child!
             # So, we check all combinations of supports from the left and supports from the right:
-            arguments: List[Argument] = []
             for left in self.children[0].arguments_for_inconsistency():
                 for right in self.children[1].arguments_for_inconsistency():
                     # We merge the combination and eliminate duplicates.
@@ -139,8 +138,8 @@ class Node:
                         # And from the merged support we create 
                         # another argument for an inconsistency:
                         arguments.append(Argument(merged, F()))
-            # Keep only unique arguments.
-            return list(set(arguments))
+        # Keep only unique arguments.
+        return list(set(arguments))
 
     def arguments_for_and_against(self, p: Proposition):
         """
