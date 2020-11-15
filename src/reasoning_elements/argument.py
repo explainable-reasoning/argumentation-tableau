@@ -1,6 +1,7 @@
 from typing import *
 from reasoning_elements.proposition import *
 from reasoning_elements.rule import *
+from reasoning_elements.test import *
 
 
 class Argument:

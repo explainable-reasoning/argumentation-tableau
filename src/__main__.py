@@ -5,10 +5,10 @@ from propositional_parser import *
 
 initial_information: List[Proposition] = [
     parse('Employed'),
-    parse('LessThanTenEmployees'),
-    parse('¬ReachedOldAgeInsurance'),
+    parse('¬LessThanTenEmployees'),
+    parse('ReachedOldAgeInsurance'),
     parse('¬MilitaryOfficial'),
-    parse('WorkedForAtLeastTwentySixWeeks')
+    parse('WorkedForAtLeastTwentySixWeeks'),
 ]
 
 rules : List[Rule] = [
@@ -21,13 +21,13 @@ rules : List[Rule] = [
         parse('¬CanMakeRequestForChange')
     ),
     Rule(
-        parse('Employed & ReachedOldAgeInsurance'),
+        parse('Employed & MilitaryOfficial'),
         parse('¬CanMakeRequestForChange')
     ),
     Rule(
-        parse('Employed & MilitaryOfficial'),
+        parse('Employed & ReachedOldAgeInsurance'),
         parse('¬CanMakeRequestForChange')
-    )
+    ),
 ]
 
 preference = [

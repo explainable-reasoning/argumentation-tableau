@@ -2,6 +2,7 @@ from typing import *
 from reasoning_elements.proposition import *
 from reasoning_elements.rule import *
 from reasoning_elements.argument import *
+from reasoning_elements.test import *
 
 
 class Node:
@@ -61,25 +62,42 @@ class Node:
             child.expand()
 
     def arguments_for_inconsistency(self):
+        """
+        Return all arguments for an inconsistency in the node or in any child node.
+        """
         if len(self.children) == 0:
-            return [a for a in self.arguments if str(a.conclusion) == str(F())]
+            # find arguments where the conclusion is an inconsistency
+            # and where the support includes at most one test
+            arguments: List[Argument] = []
+            for a in self.arguments:
+                if str(a.conclusion) == str(F()):
+                    tests = [s for s in a.support if isinstance(s, Test)]
+                    if len(tests) <= 1:
+                        arguments.append(a)
+            return arguments
         elif len(self.children) == 1:
+            # pass on all arguments from child
             return self.children[0].arguments_for_inconsistency()
         elif len(self.children) == 2:
+            # combine the arguments from both branches
             arguments: List[Argument] = []
             for a in self.children[0].arguments_for_inconsistency():
                 for b in self.children[1].arguments_for_inconsistency():
-                    combined_support = \
-                        [a for a in a.support
-                         if str(a) not in
-                         [str(b) for b in b.support]] \
-                        + b.support
-                    arguments.append(
-                        Argument(combined_support, F())
-                    )
+                    # keep only unique parts of the support
+                    combined_unique_support = []
+                    for s in a.support + b.support:
+                        if str(s) not in [str(a) for a in combined_unique_support]:
+                            combined_unique_support.append(s)
+                    # keep only arguments with at most one test in the support
+                    tests = [s for s in combined_unique_support if isinstance(s, Test)]
+                    if len(tests) <= 1:
+                        arguments.append(Argument(combined_unique_support, F()))
+            # keep only unique arguments
             unique_arguments: List[Argument] = []
             for argument in arguments:
-                if sorted([str(a) for a in argument.support]) not in [sorted([str(a) for a in unique_argument.support]) for unique_argument in unique_arguments]:
+                if (sorted([str(a) for a in argument.support])
+                    not in [sorted([str(a) for a in unique_argument.support])
+                            for unique_argument in unique_arguments]):
                     unique_arguments.append(argument)
             return unique_arguments
 
@@ -89,14 +107,15 @@ class Node:
         """
         arguments_for: List[Argument] = []
         arguments_against: List[Argument] = []
-        if isinstance(p, Not):
-            negated = p.children[0]
-        else:
-            negated = Not(p)
+        negated = p.children[0] if isinstance(p, Not) else Not(p)
         for a in self.arguments:
-            if str(a.conclusion) == str(p) or (isinstance(a.conclusion, Rule) and str(a.conclusion.consequence) == str(p)):
+            if (str(a.conclusion) == str(p)
+                or (isinstance(a.conclusion, Rule)
+                    and str(a.conclusion.consequence) == str(p))):
                 arguments_for.append(a)
-            elif str(a.conclusion) == str(negated) or (isinstance(a.conclusion, Rule) and str(a.conclusion.consequence) == str(negated)):
+            elif (str(a.conclusion) == str(negated)
+                  or (isinstance(a.conclusion, Rule)
+                      and str(a.conclusion.consequence) == str(negated))):
                 arguments_against.append(a)
         return arguments_for, arguments_against
 

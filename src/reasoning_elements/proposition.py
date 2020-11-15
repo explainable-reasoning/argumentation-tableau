@@ -224,20 +224,6 @@ class Not(ComplexProposition):
     def decompose_negated(self):
         return [[self.children[0]]]
 
-class Test:
-    content: Not
-    def __init__(self, content: Not):
-        self.content = content
-    __test__ = False # tell pytest that this has nothing to do with testing
-    operator_symbol = '¿'
-    def operator(self, a): return a
-    def is_forking(self):
-        return self.children[0].is_forking()
-    def decompose(self):
-        return Test(self.children[0].decompose())
-    def decompose_negated(self):
-        return Test(Not(self.children[0]).decompose())
-
 # Helpers
 
 # Flattens a list of lists to a list.
