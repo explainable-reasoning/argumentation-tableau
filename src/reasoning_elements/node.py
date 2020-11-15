@@ -11,13 +11,12 @@ class Node:
         self.arguments = arguments
         self.children: List['Node'] = []
 
-    def __str__(self, indent: str = '', parentArguments: List[str] = []):
-        arguments = [str(a) for a in self.arguments]
+    def __str__(self, indent: str = '', parentArguments: List[Argument] = []):
         return (indent
-                + ('\n' + indent).join([str(a) for a in arguments
+                + ('\n' + indent).join([str(a) for a in self.arguments
                                         if a not in parentArguments])
                 + '\n'
-                + '\n'.join([child.__str__(indent + '    ', arguments) for child in self.children]))
+                + '\n'.join([child.__str__(indent + '    ', self.arguments) for child in self.children]))
 
     def expand(self):
         if len(self.children) == 0:
@@ -26,16 +25,17 @@ class Node:
             # check for incosistencies in the simple propositions:
             found_new_inconsistency = False
             for a, b in itertools.product(simple, simple):
-                if isinstance(a.conclusion, Not) and str(a.conclusion.children[0]) == str(b.conclusion):
-                    self.children.append(
-                        Node(
-                            [x for x in self.arguments
-                                if str(x) != str(a) and str(x) != str(b)] +
-                            [Argument(list(set(a.support + b.support)), F())]
+                if isinstance(a.conclusion, Not) and a.conclusion.children[0] == b.conclusion:
+                    support = list(set(a.support + b.support))
+                    if not Argument(support, F()) in self.arguments:
+                        self.children.append(
+                            Node(
+                                self.arguments +
+                                [Argument(support, F())]
+                            )
                         )
-                    )
-                    found_new_inconsistency = True
-                    break
+                        found_new_inconsistency = True
+                        break
             if not found_new_inconsistency:
                 # TODO apply the attack rule
                 complex: List[Argument] = \
@@ -52,8 +52,7 @@ class Node:
                     for branch_propositions in to_be_decomposed.conclusion.decompose():
                         self.children.append(
                             Node(
-                                [a for a in self.arguments if str(
-                                    a) != str(to_be_decomposed)]
+                                [a for a in self.arguments if a != to_be_decomposed]
                                 + [Argument(to_be_decomposed.support, p)
                                    for p in branch_propositions]
                             )
@@ -70,7 +69,7 @@ class Node:
             # and where the support includes at most one test
             arguments: List[Argument] = []
             for a in self.arguments:
-                if str(a.conclusion) == str(F()):
+                if a.conclusion == F():
                     tests = [s for s in a.support if isinstance(s, Test)]
                     if len(tests) <= 1:
                         arguments.append(a)
@@ -84,22 +83,15 @@ class Node:
             for a in self.children[0].arguments_for_inconsistency():
                 for b in self.children[1].arguments_for_inconsistency():
                     # keep only unique parts of the support
-                    combined_unique_support = []
-                    for s in a.support + b.support:
-                        if str(s) not in [str(a) for a in combined_unique_support]:
-                            combined_unique_support.append(s)
+                    combined_unique_support = list(set(a.support + b.support))
                     # keep only arguments with at most one test in the support
-                    tests = [s for s in combined_unique_support if isinstance(s, Test)]
+                    tests = [
+                        s for s in combined_unique_support if isinstance(s, Test)]
                     if len(tests) <= 1:
-                        arguments.append(Argument(combined_unique_support, F()))
+                        arguments.append(
+                            Argument(combined_unique_support, F()))
             # keep only unique arguments
-            unique_arguments: List[Argument] = []
-            for argument in arguments:
-                if (sorted([str(a) for a in argument.support])
-                    not in [sorted([str(a) for a in unique_argument.support])
-                            for unique_argument in unique_arguments]):
-                    unique_arguments.append(argument)
-            return unique_arguments
+            return list(set(arguments))
 
     def arguments_for_and_against(self, p: Proposition):
         """
@@ -109,15 +101,15 @@ class Node:
         arguments_against: List[Argument] = []
         negated = p.children[0] if isinstance(p, Not) else Not(p)
         for a in self.arguments:
-            if (str(a.conclusion) == str(p)
+            if (a.conclusion == p
                 or (isinstance(a.conclusion, Rule)
-                    and str(a.conclusion.consequence) == str(p))):
+                    and a.conclusion.consequence == p)):
                 arguments_for.append(a)
-            elif (str(a.conclusion) == str(negated)
+            elif (a.conclusion == negated
                   or (isinstance(a.conclusion, Rule)
-                      and str(a.conclusion.consequence) == str(negated))):
+                      and a.conclusion.consequence == negated)):
                 arguments_against.append(a)
-        return arguments_for, arguments_against
+        return sorted(arguments_for), sorted(arguments_against)
 
     def add(self, arguments: List[Argument]):
         self.arguments += arguments

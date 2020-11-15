@@ -1,3 +1,6 @@
+import functools
+
+@functools.total_ordering
 class Rule:
 
     def __init__(self, antecedence, consequence, default_defeasible_level=5):
@@ -19,3 +22,9 @@ class Rule:
 
     def is_forking(self) -> bool:
         return self.consequence.is_forking()
+
+    def __eq__(self, other):
+        return str(self) == str(other)
+
+    def __lt__(self, other):
+        return str(self) < str(other)

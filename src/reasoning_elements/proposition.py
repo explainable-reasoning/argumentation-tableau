@@ -1,8 +1,10 @@
 from typing import *
 from abc import abstractmethod
 import itertools
+import functools
 
 
+@functools.total_ordering
 class Proposition:
     """
     Each proposition is either a truth value, a variable, or a complex (=composite) proposition, made up of some other propositions and an operator connecting them. This abstract class defines some common methods for all of them.
@@ -41,6 +43,13 @@ class Proposition:
             and (not isinstance(self, Not)
                  or isinstance(self.children[0], ComplexProposition))
 
+    def __eq__(self, other):
+        return str(self) == str(other)
+
+    def __lt__(self, other):
+        return str(self) < str(other)
+
+
 
 class Variable(Proposition):
     """
@@ -63,6 +72,12 @@ class Variable(Proposition):
 
     def variables(self) -> List[str]:
         return [self.name]
+
+    def __eq__(self, other):
+        return str(self) == str(other)
+
+    def __hash__(self):
+        return hash(str(self))
 
 
 class TruthValue(Proposition):

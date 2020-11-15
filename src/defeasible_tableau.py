@@ -29,8 +29,7 @@ class Tableau:
             arguments_for_inconsistency = self.root.arguments_for_inconsistency()
             new_arguments_for_inconsistency = \
                 [a for a in arguments_for_inconsistency
-                 if str(a) not in
-                 [str(o) for o in old_arguments_for_inconsistency]]
+                 if a not in old_arguments_for_inconsistency]
             old_arguments_for_inconsistency += new_arguments_for_inconsistency
             new_arguments = self.transform_arguments(
                 new_arguments_for_inconsistency)
@@ -56,7 +55,7 @@ class Tableau:
                 )
                 # add arguments for rules with a matching antecedens
                 for rule in self.rules:
-                    if str(rule.antecedence) == str(conclusion):
+                    if rule.antecedence == conclusion:
                         new_arguments.append(
                             Argument(support, rule)
                         )
