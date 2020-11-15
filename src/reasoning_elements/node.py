@@ -1,31 +1,34 @@
+from typing import *
 from reasoning_elements.proposition import *
+
+Argument = Tuple[List[Proposition], Proposition]
+
 
 class Node:
 
     arguments = {'complex': [], 'primitive': []}
     # `primitive` and `complex` refers to the conclusion of the argument
     children = []
-    
 
-    def __init__(self, arguments: Tuple[List[Proposition], Proposition]):
+    def __init__(self, arguments: List[Argument]):
         for (support, conclusion) in arguments:
             if conclusion.is_primitive():
                 self.arguments.primitive.append((support, conclusion))
             else:
                 self.arguments.complex.append((support, conclusion))
-        
 
     def __str__(self):
         return
 
-    def expand(self, new_arguments) -> List[Argument]:
+    def expand(self, new_arguments) -> Tuple[Bool, List[Argument]]:
         support_for_closure = []
         child_argument_map = {}
         if len(self.children) == 0:
-            support_for_closure.append(check_for_inconsistency(self.arguments.primitive, new_arguments))
+            support_for_closure.append(check_for_inconsistency(
+                self.arguments.primitive, new_arguments))
 
             expansion_argument = self.arguments.complex.pop(0)
-            #children, child_argument_map = _#apply tableaux rule  
+            # children, child_argument_map = _#apply tableaux rule
 
             """
             # get child nodes in accordance with the tableaux rules
@@ -42,23 +45,22 @@ class Node:
             """
 
         for child in children:
-            new_arguments = child_argument_map[child] if len(child_argument_map) > 0 else new_arguments
+            new_arguments = child_argument_map[child] if len(
+                child_argument_map) > 0 else new_arguments
             support_for_closure.append(child.expand(new_arguments))
-            
-        return support_for_closure
 
+        return support_for_closure
 
         support_for_closure.append(self.children.expand(new_arguments))
         return support_for_closure
-        
+
     def check_for_inconsistency(self, arguments, new_arguments):
         support_for_closure = []
         for (support, conclusion) in arguments:
             for (new_support, new_conclusion) in new_arguments:
                 if conclusion.is_inconsistent_with(conclusion):
-                    support_for_closure.append(list(set(support, new_support)))  
-        return support_for_closure # return combined support without duplicates
-
+                    support_for_closure.append(list(set(support, new_support)))
+        return support_for_closure  # return combined support without duplicates
 
         return
         """
@@ -78,4 +80,9 @@ class Node:
                         if Γ'\Γ does not include an argument with the conclusion ⟘
                         (that is, if there is no new argument for a closure):
                             expand p recursively
+        """
+
+    def arguments_for(self, p: Proposition):
+        """
+        Returns all arguments in favour of p.
         """

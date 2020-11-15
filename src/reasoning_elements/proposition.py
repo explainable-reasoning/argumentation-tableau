@@ -214,7 +214,8 @@ class Equiv(ComplexProposition):
 class Not(ComplexProposition):
     operator_symbol = '¬'
     def operator(self, a): return not a
-    def is_forking(self): return not self.children[0].is_forking()
+    def is_forking(self):
+        return not self.children[0].is_forking()
 
     def decompose(self):
         return self.children[0].decompose_negated()
@@ -222,6 +223,16 @@ class Not(ComplexProposition):
     def decompose_negated(self):
         return [[self.children[0]]]
 
+class Test(ComplexProposition):
+    __test__ = False # tell pytest that this has nothing to do with testing
+    operator_symbol = '¿'
+    def operator(self, a): return a
+    def is_forking(self):
+        return self.children[0].is_forking()
+    def decompose(self):
+        return Test(self.children[0].decompose())
+    def decompose_negated(self):
+        return Test(Not(self.children[0]).decompose())
 
 # Helpers
 
