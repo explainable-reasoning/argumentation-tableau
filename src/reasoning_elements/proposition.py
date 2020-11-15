@@ -2,6 +2,7 @@ from typing import *
 from abc import abstractmethod
 import itertools
 
+
 class Proposition:
     """
     Each proposition is either a truth value, a variable, or a complex (=composite) proposition, made up of some other propositions and an operator connecting them. This abstract class defines some common methods for all of them.
@@ -34,6 +35,11 @@ class Proposition:
     def print_truthtable(self):
         for row in self.truthtable():
             print(row)
+
+    def is_decomposable(self):
+        return isinstance(self, ComplexProposition) \
+            and (not isinstance(self, Not)
+                 or isinstance(self.children[0], ComplexProposition))
 
 
 class Variable(Proposition):
@@ -136,30 +142,85 @@ class ComplexProposition(Proposition):
         Implementation of the logical operator connecting the child propositions of the proposition.
         """
 
+    @abstractmethod
+    def is_forking(self) -> bool:
+        """
+        Whether or not the proposition creates a fork when expanded
+        """
+
+    @abstractmethod
+    def decompose(self) -> List[List[Proposition]]:
+        """
+        Applies the tableau rule to the proposition and returns the result. The result takes the form of a list of one or two branches, each of which contains a list of one or two derived propositions.
+        """
+
+    @abstractmethod
+    def decompose_negated(self) -> List[List[Proposition]]:
+        """
+        Same as `decompose`, but if the proposition is wrapped inside a `Not(...)` operator.
+        """
+
 
 class And(ComplexProposition):
     operator_symbol = '∧'
     def operator(self, a, b): return a and b
+    def is_forking(self): return False
+
+    def decompose(self):
+        return [[self.children[0], self.children[1]]]
+
+    def decompose_negated(self):
+        return [[Not(self.children[0])], [Not(self.children[1])]]
 
 
 class Or(ComplexProposition):
     operator_symbol = '∨'
     def operator(self, a, b): return a or b
+    def is_forking(self): return True
+
+    def decompose(self):
+        return [[self.children[0]], [self.children[1]]]
+
+    def decompose_negated(self):
+        return [[Not(self.children[0]), Not(self.children[1])]]
 
 
 class Implies(ComplexProposition):
     operator_symbol = '→'
     def operator(self, a, b): return b or (not a)
+    def is_forking(self): return True
+
+    def decompose(self):
+        return [[Not(self.children[0])], [self.children[1]]]
+
+    def decompose_negated(self):
+        return [[self.children[0], Not(self.children[1])]]
 
 
 class Equiv(ComplexProposition):
     operator_symbol = '↔'
     def operator(self, a, b): return a == b
+    def is_forking(self): return False
+
+    def decompose(self):
+        return [[Implies(self.children[0], self.children[1]),
+                 Implies(self.children[1], self.children[0])]]
+
+    def decompose_negated(self):
+        return [[Not(Implies(self.children[0], self.children[1]))],
+                [Not(Implies(self.children[1], self.children[0]))]]
 
 
 class Not(ComplexProposition):
     operator_symbol = '¬'
     def operator(self, a): return not a
+    def is_forking(self): return not self.children[0].is_forking()
+
+    def decompose(self):
+        return self.children[0].decompose_negated()
+
+    def decompose_negated(self):
+        return [[self.children[0]]]
 
 
 # Helpers

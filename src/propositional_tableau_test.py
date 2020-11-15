@@ -5,7 +5,7 @@ from textwrap import dedent
 
 
 def test_or():
-    node = Node([(parse('A ∨ B'), False)])
+    node = Node([parse('A ∨ B')])
     node.expand()
     assert str(node) == dedent("""\
                         A ∨ B
@@ -16,7 +16,7 @@ def test_or():
 
 
 def test_and():
-    node=Node([(parse('A ∧ B'), False)])
+    node = Node([parse('A ∧ B')])
     node.expand()
     assert str(node) == dedent("""\
                         A ∧ B
@@ -26,7 +26,7 @@ def test_and():
 
 
 def test_or_and():
-    node=Node([(parse('(A ∧ B) ∨ C'), False)])
+    node = Node([parse('(A ∧ B) ∨ C')])
     node.expandRecursively()
     assert str(node) == dedent("""\
                         (A ∧ B) ∨ C
@@ -39,7 +39,7 @@ def test_or_and():
 
 
 def test_and_or():
-    node=Node([(parse('(A ∨ B) ∧ C'), False)])
+    node = Node([parse('(A ∨ B) ∧ C')])
     node.expandRecursively()
     assert str(node) == dedent("""\
                         (A ∨ B) ∧ C
@@ -52,7 +52,7 @@ def test_and_or():
 
 
 def test_implies():
-    node=Node([(parse('A → B'), False)])
+    node = Node([parse('A → B')])
     node.expand()
     assert str(node) == dedent("""\
                         A → B
@@ -62,8 +62,8 @@ def test_implies():
                         """)
 
 
-def test_equal():
-    node=Node([(parse('A ↔ B'), False)])
+def test_equiv():
+    node = Node([parse('A ↔ B')])
     node.expand()
     assert str(node) == dedent("""\
                         A ↔ B
@@ -74,8 +74,9 @@ def test_equal():
 
 def test_complex():
     # Example from Smullyan 1995, p. 16
-    node=Node([(parse('¬((p ∨ (q ∧ r)) → ((p ∨ q) ∧ (p ∨ r)))'), False)])
+    node = Node([parse('¬((p ∨ (q ∧ r)) → ((p ∨ q) ∧ (p ∨ r)))')])
     node.expandRecursively()
+    print(node)
     assert str(node) == dedent("""\
                         ¬((p ∨ (q ∧ r)) → ((p ∨ q) ∧ (p ∨ r)))
                             p ∨ (q ∧ r)
@@ -107,9 +108,9 @@ def test_complex():
 
 
 def test_expand_nonbranching_first():
-    node=Node([
-        (Or('A', 'B'), False),
-        (And('C', 'D'), False)
+    node = Node([
+        Or('A', 'B'),
+        And('C', 'D')
     ])
     node.expandRecursively()
     assert str(node) == dedent("""\

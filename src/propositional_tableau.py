@@ -25,7 +25,7 @@ class Tableau:
     root: 'Node'
 
     def __init__(self, proposition):
-        self.root = Node([(toProposition(proposition), False)])
+        self.root = Node([toProposition(proposition)])
         self.root.expandRecursively()
 
     def __str__(self):
@@ -38,23 +38,15 @@ class Tableau:
 class Node:
     """
     Node of a propositional tableau.
-    Contains a list of propositions, along with information whether they have already been rewritten by using a rule.
     Can be expanded, and then it may have child nodes.
     """
-    arguments: List[Tuple[Proposition, bool]]
+    arguments: List[Proposition]
 
     children: List['Node']
 
     closed: bool
 
-    def __init__(self, propositions: List[Tuple[Proposition, bool]]):
-        """
-        Make a new node.
-        Takes a list of pairs, where each pair consists of:
-        - A proposition.
-        - A boolean indicating whether the proposition has already been rewritten using one of the rules.
-          This information is important, since in propositional tableaux, every rule needs be rewritten only once. (Roos, L4AI, p. 34)
-        """
+    def __init__(self, propositions: List[Proposition]):
         self.propositions = propositions
         self.children = []
         self.closed = False
@@ -68,7 +60,7 @@ class Node:
         Multiple propositions within one node will be printed in consecutive lines.
         Multiple nodes are separated by a blank line.
         """
-        propositions = [str(p) for (p, _) in self.propositions]
+        propositions = [str(p) for p in self.propositions]
         return (indent
                 + ('\n' + indent).join([p for p in propositions
                                         if p not in parentPropositions])
@@ -82,72 +74,29 @@ class Node:
         This means roughly that child nodes are added, where the unexpanded propositions will be replaced using the rewriting rules of propositonal tableau.
         One proposition is expanded at a time. If there are propositions whose expansion is non-branching, they will be considered first, to reduce redundancy in the new branches.
         """
-        unexpanded = [p for (p, alreadyExpanded) in self.propositions
-                      if not alreadyExpanded]
-        # Sequents:
-        non_branching: List[Proposition] = []
-        branching: List[List[Proposition]] = []
-        # Old arguments with new sequents, where the expansion may be delayed
-        delayed_branching: List[Proposition] = []
-        # Old arguments without new sequents
-        old: List[Proposition] = [p for (p, alreadyExpanded) in self.propositions
-                                  if alreadyExpanded]
-        for p in unexpanded:
-            if isinstance(p, And):
-                non_branching += [p.children[0], p.children[1]]
-            elif isinstance(p, Or):
-                branching.append([p.children[0], p.children[1]])
-                delayed_branching.append(p)
-            elif isinstance(p, Implies):
-                branching.append([Not(p.children[0]), p.children[1]])
-                delayed_branching.append(p)
-            elif isinstance(p, Equiv):
-                non_branching += [Implies(p.children[0], p.children[1]),
-                                  Implies(p.children[1], p.children[0])]
-            elif isinstance(p, Variable):
-                if any([isinstance(x, Not)
-                        and isinstance(x.children[0], Variable)
-                        and p.name == x.children[0].name
-                        for (x, _) in self.propositions]):
-                    self.closed = True
-                else:
-                    old.append(p)
-            elif isinstance(p, Not):
-                q = p.children[0]
-                if isinstance(q, And):
-                    branching.append([Not(q.children[0]), Not(q.children[1])])
-                    delayed_branching.append(p)
-                elif isinstance(q, Or):
-                    non_branching += [Not(q.children[0]), Not(q.children[1])]
-                elif isinstance(q, Implies):
-                    non_branching += [q.children[0], Not(q.children[1])]
-                elif isinstance(q, Equiv):
-                    branching.append([Not(Implies(q.children[0], q.children[1])),
-                                      Not(Implies(q.children[1], q.children[0]))])
-                    delayed_branching.append(p)
-                elif isinstance(q, Not):
-                    non_branching += [q.children[0]]
-                elif isinstance(q, Variable):
-                    if any([isinstance(x, Variable)
-                            and q.name == x.name
-                            for (x, _) in self.propositions]):
-                        self.closed = True
-                    else:
-                        old.append(p)
-                else:
-                    old.append(p)
-            else:
-                old.append(p)
-        old_ = [(p, True) for p in old]
-        if len(non_branching) > 0:
-            new = [(proposition, False) for proposition
-                   in non_branching + delayed_branching]
-            self.children.append(Node(old_ + new))
-        elif len(branching) > 0:
-            for branch in branching[0]:
-                new = [(proposition, False) for proposition
-                       in [branch] + delayed_branching[1:]]
-                self.children.append(Node(old_ + new))
+        simple: List[Proposition] = \
+            [p for p in self.propositions if not p.is_decomposable()]
+        # check for incosistencies in the simple propositions:
+        for a, b in itertools.product(simple, simple):
+            if isinstance(a, Not) and str(a.children[0]) == str(b):
+                self.closed = True
+                return
+        complex: List[Proposition] = \
+            [p for p in self.propositions if p.is_decomposable()]
+        if len(complex) > 0:
+            # sort the unexpanded propositions,
+            # so that those propositions that fork a branch are treated last:
+            complex_and_forking = \
+                [p for p in complex if p.is_forking()]
+            complex_and_not_forking = \
+                [p for p in complex if not p.is_forking()]
+            sorted_complex = complex_and_not_forking + complex_and_forking
+            to_be_decomposed = sorted_complex[0]
+            for branch_propositions in to_be_decomposed.decompose():
+                self.children.append(Node(
+                    [p for p in self.propositions if str(
+                        p) != str(to_be_decomposed)]
+                    + branch_propositions))
 
     def expandRecursively(self):
         self.expand()
