@@ -11,7 +11,7 @@ logic_grammar = r"""
     nary    : (exp (and exp)+) | (exp (or exp)+)
     true    : "t"i | "1" | "true"i | "yes"i
     false   : "f"i | "0" | "false"i | "no"i
-    variable: /[a-zA-Zα-ωΑ-Ω_]/
+    variable: /[a-zA-Zα-ωΑ-Ω_]+/
     not     : "¬" | "not"i | "neg"i | "~" | "-" | "!"
     and     : "∧" | "and"i | "&"~1..2 | "^" | ","
     or      : "∨" | "or"i  | "|"~1..2 | "v" | "/"
@@ -63,7 +63,7 @@ class TreeToJson2(Transformer):
         return F()
 
     def variable(self, a):
-        return Variable(a[0])
+        return Variable(a)
 
 
 def parse(a):

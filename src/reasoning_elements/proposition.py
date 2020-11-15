@@ -215,7 +215,8 @@ class Not(ComplexProposition):
     operator_symbol = '¬'
     def operator(self, a): return not a
     def is_forking(self):
-        return not self.children[0].is_forking()
+        if isinstance(self.children[0], Not): return False
+        else: return not self.children[0].is_forking()
 
     def decompose(self):
         return self.children[0].decompose_negated()

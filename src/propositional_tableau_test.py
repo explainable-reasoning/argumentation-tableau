@@ -76,7 +76,6 @@ def test_complex():
     # Example from Smullyan 1995, p. 16
     node = Node([parse('¬((p ∨ (q ∧ r)) → ((p ∨ q) ∧ (p ∨ r)))')])
     node.expandRecursively()
-    print(node)
     assert str(node) == dedent("""\
                         ¬((p ∨ (q ∧ r)) → ((p ∨ q) ∧ (p ∨ r)))
                             p ∨ (q ∧ r)

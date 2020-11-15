@@ -1,88 +1,106 @@
 from typing import *
 from reasoning_elements.proposition import *
-
-Argument = Tuple[List[Proposition], Proposition]
+from reasoning_elements.rule import *
+from reasoning_elements.argument import *
 
 
 class Node:
 
-    arguments = {'complex': [], 'primitive': []}
-    # `primitive` and `complex` refers to the conclusion of the argument
-    children = []
-
     def __init__(self, arguments: List[Argument]):
-        for (support, conclusion) in arguments:
-            if conclusion.is_primitive():
-                self.arguments.primitive.append((support, conclusion))
-            else:
-                self.arguments.complex.append((support, conclusion))
+        self.arguments = arguments
+        self.children = []
 
-    def __str__(self):
-        return
+    def __str__(self, indent: str = '', parentArguments: List[str] = []):
+        arguments = [str(a) for a in self.arguments]
+        return (indent
+                + ('\n' + indent).join([str(a) for a in arguments
+                                        if a not in parentArguments])
+                + '\n'
+                + '\n'.join([child.__str__(indent + '    ', arguments) for child in self.children]))
 
-    def expand(self, new_arguments) -> Tuple[Bool, List[Argument]]:
-        support_for_closure = []
-        child_argument_map = {}
+    def expand(self):
         if len(self.children) == 0:
-            support_for_closure.append(check_for_inconsistency(
-                self.arguments.primitive, new_arguments))
+            simple: List[Argument] = \
+                [a for a in self.arguments if not a.conclusion.is_decomposable()]
+            # check for incosistencies in the simple propositions:
+            found_new_inconsistency = False
+            for a, b in itertools.product(simple, simple):
+                if isinstance(a.conclusion, Not) and str(a.conclusion.children[0]) == str(b.conclusion):
+                    self.children.append(
+                        Node(
+                            [x for x in self.arguments
+                                if str(x) != str(a) and str(x) != str(b)] +
+                            [Argument(list(set(a.support + b.support)), F())]
+                        )
+                    )
+                    found_new_inconsistency = True
+                    break
+            if not found_new_inconsistency:
+                # TODO apply the attack rule
+                complex: List[Argument] = \
+                    [a for a in self.arguments if a.conclusion.is_decomposable()]
+                if len(complex) > 0:
+                    # sort the unexpanded propositions,
+                    # so that those propositions that fork a branch are treated last:
+                    complex_and_forking = \
+                        [p for p in complex if p.conclusion.is_forking()]
+                    complex_and_not_forking = \
+                        [p for p in complex if not p.conclusion.is_forking()]
+                    sorted_complex = complex_and_not_forking + complex_and_forking
+                    to_be_decomposed = sorted_complex[0]
+                    for branch_propositions in to_be_decomposed.conclusion.decompose():
+                        self.children.append(
+                            Node(
+                                [a for a in self.arguments if str(
+                                    a) != str(to_be_decomposed)]
+                                + [Argument(to_be_decomposed.support, p)
+                                   for p in branch_propositions]
+                            )
+                        )
+        for child in self.children:
+            child.expand()
 
-            expansion_argument = self.arguments.complex.pop(0)
-            # children, child_argument_map = _#apply tableaux rule
+    def arguments_for_inconsistency(self):
+        if len(self.children) == 0:
+            return [a for a in self.arguments if str(a.conclusion) == str(F())]
+        elif len(self.children) == 1:
+            return self.children[0].arguments_for_inconsistency()
+        elif len(self.children) == 2:
+            arguments: List[Argument] = []
+            for a in self.children[0].arguments_for_inconsistency():
+                for b in self.children[1].arguments_for_inconsistency():
+                    combined_support = \
+                        [a for a in a.support
+                         if str(a) not in
+                         [str(b) for b in b.support]] \
+                        + b.support
+                    arguments.append(
+                        Argument(combined_support, F())
+                    )
+            unique_arguments: List[Argument] = []
+            for argument in arguments:
+                if sorted([str(a) for a in argument.support]) not in [sorted([str(a) for a in unique_argument.support]) for unique_argument in unique_arguments]:
+                    unique_arguments.append(argument)
+            return unique_arguments
 
-            """
-            # get child nodes in accordance with the tableaux rules
-            # each child node should have the same arguments as the parent node
-            # each child node should have an empty set of children
-            # in accordance with the tableaux rules, for each child some new argument gets formulated
-            # the new argument consists of the support from the parent node and a new proposition as conclusion
-            # Example: 
-            #   If there is an argument ({a, b, c}, p & q), the child node will instead contain 2 arguments: 
-            #   ({a, b, c}, p) and ({a, b, c}, q)            
-            # take a look at `propositional_tableaux_tree.py`, but there it is much too complicated
-            # take a look at the paper p. 4, bottom
-            # the function should return a list of children, and a dictionary associating the new arguments to the children
-            """
-
-        for child in children:
-            new_arguments = child_argument_map[child] if len(
-                child_argument_map) > 0 else new_arguments
-            support_for_closure.append(child.expand(new_arguments))
-
-        return support_for_closure
-
-        support_for_closure.append(self.children.expand(new_arguments))
-        return support_for_closure
-
-    def check_for_inconsistency(self, arguments, new_arguments):
-        support_for_closure = []
-        for (support, conclusion) in arguments:
-            for (new_support, new_conclusion) in new_arguments:
-                if conclusion.is_inconsistent_with(conclusion):
-                    support_for_closure.append(list(set(support, new_support)))
-        return support_for_closure  # return combined support without duplicates
-
-        return
-        """
-        expanding a node Γ recursively:
-            check all pairs of primitive propositions and check for inconsistencies in the arguments
-            if there is no inconsistency to be derived:
-                check all pairs of defeasible rules in the conclusions of arguments in the node and try to 
-                apply the attack rule (see below)
-                if there is no attack rule to be applied:
-                    select the first argument (S, c) where the conclusion c is longer than a single literal
-                    apply the corresponding rule of the normal propositional tableau
-                    this yields one or two branches = one or two sets of child propositions
-                    for each set of child propositions P:
-                        create a child node Γ' with the same argument set as Γ
-                        remove (S, c) from the child node
-                        instead add (S, p) for every p ∈ P
-                        if Γ'\Γ does not include an argument with the conclusion ⟘
-                        (that is, if there is no new argument for a closure):
-                            expand p recursively
-        """
-
-    def arguments_for(self, p: Proposition):
+    def arguments_for_and_against(self, p: Proposition):
         """
         Returns all arguments in favour of p.
         """
+        arguments_for: List[Argument] = []
+        arguments_against: List[Argument] = []
+        if isinstance(p, Not):
+            negated = p.children[0]
+        else:
+            negated = Not(p)
+        for a in self.arguments:
+            if str(a.conclusion) == str(p) or (isinstance(a.conclusion, Rule) and str(a.conclusion.consequence) == str(p)):
+                arguments_for.append(a)
+            elif str(a.conclusion) == str(negated) or (isinstance(a.conclusion, Rule) and str(a.conclusion.consequence) == str(negated)):
+                arguments_against.append(a)
+        return arguments_for, arguments_against
+
+    def add(self, arguments: List[Argument]):
+        self.arguments += arguments
+        for child in self.children:
+            child.add(arguments)
