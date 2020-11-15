@@ -4,7 +4,7 @@ from reasoning_elements.rule import *
 
 
 class Argument:
-    def __init__(self, support: List[Union['Argument', Proposition]], conclusion: Union[Proposition, Rule]):
+    def __init__(self, support: List[Union['Argument', Proposition, Test]], conclusion: Union[Proposition, Rule]):
         self.support = support
         self.conclusion = conclusion
 

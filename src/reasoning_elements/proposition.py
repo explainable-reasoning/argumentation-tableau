@@ -224,7 +224,10 @@ class Not(ComplexProposition):
     def decompose_negated(self):
         return [[self.children[0]]]
 
-class Test(ComplexProposition):
+class Test:
+    content: Not
+    def __init__(self, content: Not):
+        self.content = content
     __test__ = False # tell pytest that this has nothing to do with testing
     operator_symbol = '¿'
     def operator(self, a): return a

@@ -20,7 +20,7 @@ class Tableau:
         self.rules = rules
         self.final_conclusion = final_conclusion
 
-    def evaluate(self) -> List[Argument]:
+    def evaluate(self) -> Tuple[List[Argument], List[Argument]]:
         done = False
         old_arguments_for_inconsistency: List[Argument] = []
         new_arguments_for_inconsistency: List[Argument] = []
@@ -31,23 +31,25 @@ class Tableau:
             # expand node as far as possible
             self.root.expand()
             arguments_for_inconsistency = self.root.arguments_for_inconsistency()
-            new_arguments_for_inconsistency = [a for a in arguments_for_inconsistency if str(a) not in [str(o) for o in old_arguments_for_inconsistency]]
+            new_arguments_for_inconsistency = [a for a in arguments_for_inconsistency if str(
+                a) not in [str(o) for o in old_arguments_for_inconsistency]]
             old_arguments_for_inconsistency += new_arguments_for_inconsistency
             if len(new_arguments_for_inconsistency) == 0:
                 break
         # print([str(a) for a in self.transform_arguments(old_arguments_for_inconsistency)])
-        pro, contra = self.root.arguments_for_and_against(self.final_conclusion)
+        pro, contra = self.root.arguments_for_and_against(
+            self.final_conclusion)
         return pro, contra
 
     def transform_arguments(self, arguments_for_inconsistency: List[Argument]) -> List[Argument]:
         # gets the support for the closure of the tableau (if there is such a support) and creates new arguments to be added to th root node
         new_arguments = []
         for a in arguments_for_inconsistency:
-            tests = [p for p in a.support if isinstance(p, Test)]
+            tests: List[Test] = [p for p in a.support if isinstance(p, Test)]
             if len(tests) == 1:
-                test = tests[0]
-
-                conclusion = test.children[0].children[0]  # that is, the un-negated test
+                test: Test = tests[0]
+                # the un-negated test:
+                conclusion: Proposition = test.content.children[0]
                 support = [p for p in a.support if str(p) != str(test)]
                 new_arguments.append(
                     Argument(support, conclusion)

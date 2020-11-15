@@ -8,7 +8,7 @@ class Node:
 
     def __init__(self, arguments: List[Argument]):
         self.arguments = arguments
-        self.children = []
+        self.children: List['Node'] = []
 
     def __str__(self, indent: str = '', parentArguments: List[str] = []):
         arguments = [str(a) for a in self.arguments]
