@@ -4,6 +4,10 @@ from reasoning_elements.rule import *
 from reasoning_elements.node import *
 from reasoning_elements.test import *
 
+"""
+The logic for the defeasible tableau is split between this file and `node.py`.
+"""
+
 
 class Tableau:
     def __init__(self,
@@ -11,10 +15,16 @@ class Tableau:
                  rules: List[Rule],
                  final_conclusion: Proposition
                  ):
-        # initialize the root node
+        """
+        On initialization, the root node will be created and filled with the appropriate arguments.
+        The `final_conclusion` refers to the conclusion for which the tableau should generate (counter)arguments.
+        """
         self.root = Node(
+            # Arguments for the initial information:
             [Argument([p], p) for p in initial_information]
+            # Tests for the final conclusion:
             + [Argument([Test(Not(final_conclusion))], Not(final_conclusion))]
+            # Tests for the antecedences of all rules:
             + [Argument([Test(Not(rule.antecedence))],
                         Not(rule.antecedence)) for rule in rules]
         )
@@ -22,43 +32,53 @@ class Tableau:
         self.final_conclusion = final_conclusion
 
     def evaluate(self) -> Tuple[List[Argument], List[Argument]]:
-        old_arguments_for_inconsistency: List[Argument] = []
-        new_arguments_for_inconsistency: List[Argument] = []
+        """
+        The main loop. It performs the following steps:
+            1. Expand the tableau as far as possible.
+            2. Retrieve all arguments for the closure of the tableau.
+            3. Convert them into constructive arguments.
+            4. Add them to all nodes (if they are not already there).
+            5. If new arguments could be created in the last step: Repeat from step 1.
+        Then it retrieves all arguments for and against the `final_conclusion` and returns them.
+        """
+        arguments_for_inconsistency: List[Argument] = []
         while True:
-            self.root.expand()  # expand node as far as possible
-            arguments_for_inconsistency = self.root.arguments_for_inconsistency()
-            new_arguments_for_inconsistency = \
-                [a for a in arguments_for_inconsistency
-                 if a not in old_arguments_for_inconsistency]
-            old_arguments_for_inconsistency += new_arguments_for_inconsistency
-            new_arguments = self.transform_arguments(
-                new_arguments_for_inconsistency)
-            self.root.add(new_arguments)
+            self.root.expand()  # 1.
+            inconsistencies = self.transform_arguments(
+                self.root.arguments_for_inconsistency())  # 2. & 3.
+            new_arguments = [a for a in inconsistencies
+                             if a not in self.root.arguments]  # 4.
+            self.root.add(new_arguments)  # 4.
             if len(new_arguments) == 0:
-                break
+                break  # 5
         pro, contra = self.root.arguments_for_and_against(
             self.final_conclusion)
         return pro, contra
 
-    def transform_arguments(self, arguments_for_inconsistency: List[Argument]) -> List[Argument]:
-        # gets the support for the closure of the tableau (if there is such a support) and creates new arguments to be added to the root node
+    def transform_arguments(self, inconsistencies: List[Argument]) -> List[Argument]:
+        """
+        This takes arguments for an inconsistency such as
+            ({¬a?, b, ¬c}, False)
+        and converts them into constructive arguments
+            ({b, ¬c}, a)                (1.)
+        and, if there is a rule such as
+            a ~> d
+        then it will also create a constructive argument
+            ({b, ¬c}, a ~> d)           (2.)
+        """
         new_arguments = []
-        for a in arguments_for_inconsistency:
+        for a in inconsistencies:
             tests: List[Test] = [p for p in a.support if isinstance(p, Test)]
             if len(tests) == 1:
-                # add argument for the un-negated test
-                test: Test = tests[0]
-                conclusion: Proposition = test.content.children[0]
+                # 1.:
+                test = tests[0]
                 support = [p for p in a.support if str(p) != str(test)]
                 new_arguments.append(
-                    Argument(support, conclusion)
-                )
-                # add arguments for rules with a matching antecedens
+                    Argument(support, test.nonnegated_content()))
+                # 2.:
                 for rule in self.rules:
-                    if rule.antecedence == conclusion:
-                        new_arguments.append(
-                            Argument(support, rule)
-                        )
-            else:
+                    if rule.antecedence == test.nonnegated_content():
+                        new_arguments.append(Argument(support, rule))
+            elif len(tests) == 0:
                 pass  # TODO deal with inconsistencies in the initial information
         return new_arguments

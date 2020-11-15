@@ -21,8 +21,6 @@ logic_grammar = r"""
     %import common.WS
     %ignore WS
 """
-
-
 @v_args(inline=True)
 class TreeToJson2(Transformer):
     from reasoning_elements.proposition import Not, And, Or, Implies, Equiv

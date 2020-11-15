@@ -2,6 +2,11 @@ from reasoning_elements.proposition import *
 from propositional_parser import toProposition
 from typing import Tuple, List
 
+"""
+Note that the propositional tableau has its own Node data structure, which is also found in its file.
+There is another Node data structure in `reasoning_elements/node.py`, but that one is only for the defeasible tableau.
+The difference is that this one is a set of propositions, and the other one is a set of arguments.
+"""
 
 def is_valid(proposition) -> bool:
     """
