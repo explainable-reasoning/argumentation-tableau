@@ -1,6 +1,6 @@
 from defeasible_tableau import *
 from propositional_parser import *
-import scenery_test_set
+from scenery_test_set import *
 
 # initial_information: List[Proposition] = [
 #     parse('Employed'),
@@ -51,14 +51,21 @@ import scenery_test_set
 # print(tableau.root)
 
 if __name__ == '__main__':
-    example_1 = scenery_test_set.logic_example_1
-    tableau = Tableau(
-        example_1['initial_information'],
-        example_1['rules'],
-        parse('¬CanMakeRequestForChange')
-    )
-    pro, contra = tableau.evaluate()
-    print('Pro:')
-    for a in pro: print(a)
-    print('Contra:')
-    for a in contra: print(a)
+
+    for example in [
+        logic_example_1,
+        logic_example_2,
+        scenery_example_2
+    ]:
+        tableau = Tableau(
+            example['initial_information'],
+            example['rules'],
+            example['final_conclusion']
+        )
+        pro, contra = tableau.evaluate()
+        print('Pro:')
+        for a in pro:
+            print(a)
+        print('Contra:')
+        for a in contra:
+            print(a)
