@@ -55,7 +55,7 @@ def test_law_example():
 
 def test_law_example_2():
     """
-    Tomas Cremers, Appendix C.1
+    Tomas Cremers, Appendix C.2
     """
     tableau = Tableau(
         initial_information=[
@@ -118,7 +118,9 @@ def test_law_example_2():
         (1, 0),  # R2 > R1
         (2, 0),  # R3 > R1
         (3, 0),  # R4 > R1
-        (5,2,3)
+        (5, 2),
+        (5, 3),
+
     ]
     pro, contra = tableau.evaluate()
     print(pro)
@@ -134,7 +136,7 @@ def test_law_example_2():
 @mark.skip
 def test_logic_example_1():
     """
-    Source: from Nico's mail??
+    Source: from Nico's paper at page at page 8
     """
     tableau = Tableau(
         initial_information=[
@@ -164,7 +166,7 @@ def test_logic_example_1():
 @mark.skip
 def test_logic_example_2():
     """
-    Source ???
+    Source: from Nico's paper at page at page 13
     """
     tableau = Tableau(
         initial_information=[
@@ -191,5 +193,3 @@ def test_logic_example_2():
     assert str_list(contra) == [
         'TODO'
     ]
-
-test_law_example_2()
