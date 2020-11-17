@@ -49,6 +49,8 @@ class Proposition:
     def __lt__(self, other):
         return str(self) < str(other)
 
+    def __hash__(self):
+        return hash(str(self))
 
 
 class Variable(Proposition):
