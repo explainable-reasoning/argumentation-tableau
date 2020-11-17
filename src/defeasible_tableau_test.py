@@ -60,6 +60,91 @@ def test_law_example():
     ]
 
 @skip
+def test_law_example_2():
+    """
+    Tomas Cremers, Appendix C.2
+    """
+    tableau = Tableau(
+        initial_information=[
+            parse('Employed'),
+            parse('¬LessThanTenEmployees'),
+            parse('¬ReachedOldAgeInsurance'),
+            parse('¬MilitaryOfficial'),
+            parse('WorkedForAtLeastTwentySixWeeks'),
+            parse('TimeSinceLastRequestMinOneYear'),
+            parse('RequestSubmittedInWriting'),
+            parse('¬UnforseenCircumstances'),
+            parse('DOES_RequestChangeWorkingHours'),
+            parse('DOES_RequestChangeWorkingTimes'),
+        ],
+        rules=[
+            Rule(
+                parse('Employed'),
+                parse('CanMakeRequestForChange')
+            ),
+            Rule(
+                parse('Employed & LessThanTenEmployees'),
+                parse('¬CanMakeRequestForChange')
+            ),
+            Rule(
+                parse('Employed & ReachedOldAgeInsurance'),
+                parse('¬CanMakeRequestForChange')
+            ),
+            Rule(
+                parse('Employed & MilitaryOfficial'),
+                parse('¬CanMakeRequestForChange')
+            ),
+            Rule(
+                parse('Employed & UnforseenCircumstances'),
+                parse('CanMakeRequestForChange')
+            ),
+            Rule(
+                parse('CanMakeRequestForChange & DOES_RequestChangeWorkingHours'),
+                parse('LEGAL_RequestedChangeWorkingHours')
+            ),
+            Rule(
+                parse(
+                    'CanMakeRequestForChange & DOES_RequestChangeWorkingHours & ¬RequestSubmittedInWriting'),
+                parse('¬LEGAL_RequestedChangeWorkingHours')
+            ),
+            Rule(
+                parse(
+                    'CanMakeRequestForChange & DOES_RequestChangeWorkingHours & ¬TimeSinceLastRequestMinOneYear'),
+                parse('¬LEGAL_RequestedChangeWorkingHours')
+            ),
+            Rule(
+                parse(
+                    'CanMakeRequestForChange & DOES_RequestChangeWorkingHours & ¬WorkedForAtLeastTwentySixWeeks'),
+                parse('¬LEGAL_RequestedChangeWorkingHours')
+            ),
+            Rule(
+                parse(
+                    'CanMakeRequestForChange & DOES_RequestChangeWorkingHours &  UnforseenCircumstances'),
+                parse('LEGAL_RequestedChangeWorkingHours')
+            )
+        ],
+        final_conclusion=parse('LEGAL_RequestedChangeWorkingHours')
+    )
+    preference = [
+        (1, 0),  # R2 > R1
+        (2, 0),  # R3 > R1
+        (3, 0),  # R4 > R1
+        (5, 2),
+        (5, 3),
+
+    ]
+    pro, contra = tableau.evaluate()
+    print(pro)
+    print(contra)
+    # assert str_list(pro) == [
+    #
+    # ]
+    # assert str_list(contra) == [
+    #     '({{Employed}, Employed ~> CanMakeRequestForChange)} CanMakeRequestForChange '
+    # ]
+
+
+@skip
 def test_logic_example_1():
     """
     Source: Roos (2016), p. 7-9
@@ -125,7 +210,7 @@ def test_logic_example_2():
 @skip
 def test_logic_example_3():
     """
-    Source ???
+    Source: from Nico's paper at page at page 13
     """
     tableau = Tableau(
         initial_information=[
