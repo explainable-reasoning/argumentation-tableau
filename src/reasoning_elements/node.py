@@ -58,11 +58,12 @@ class Node:
                         # Create an argument for the inconsistency
                         # by merging the supports of the arguments leading to it:
                         support = list(set(a.support + b.support))
-                        if not Argument(support, F()) in self.arguments:
+                        new_inconsistency = Argument(support, F())
+                        if not new_inconsistency in self.arguments:
                             self.children.append(
                                 Node(
                                     self.arguments +
-                                    [Argument(support, F())]
+                                    [new_inconsistency]
                                 )
                             )
                             # We have already created a child, that's enough for now:
@@ -133,13 +134,26 @@ class Node:
             for left in self.children[0].arguments_for_inconsistency():
                 for right in self.children[1].arguments_for_inconsistency():
                     # We merge the combination and eliminate duplicates.
-                    merged = list(set(left.support + right.support))
+                    merged = set(left.support).union(set(right.support))
                     # We keep only arguments with at most one test in the support.
-                    tests = [s for s in merged if isinstance(s, Test)]
+                    tests = {s for s in merged if isinstance(s, Test)}
                     if len(tests) <= 1:
+                        if consistent(merged - tests):
+                            arguments.append(Argument(merged, F()))
+                    """
+                    if len(tests) == 0:
                         # And from the merged support we create
                         # another argument for an inconsistency:
                         arguments.append(Argument(merged, F()))
+                    if len(tests) == 1:
+                        test = tests[0]
+                        complex_conclusions = [to_proposition(s) for s in merged
+                                               if not isinstance(s, Proposition)
+                                               and not isinstance(s, Test)]
+                        if not test.nonnegated_content() in complex_conclusions:
+                            arguments.append(Argument(merged, F()))
+                    """
+
         # Keep only unique arguments.
         return list(set(arguments))
 
@@ -171,8 +185,22 @@ class Node:
             child.add(arguments)
 
 
-def to_proposition(a: Argument) -> Proposition:
-    if isinstance(a.conclusion, Rule):
-        return a.conclusion.consequence
+def to_proposition(a: Union[Argument, Test, Proposition]) -> Proposition:
+    if isinstance(a, Test):
+        return a.content
+    elif isinstance(a, Argument):
+        if isinstance(a.conclusion, Rule):
+            return a.conclusion.consequence
+        else:
+            return a.conclusion
     else:
-        return a.conclusion
+        return a
+
+
+def consistent(l):
+    for a in l:
+        for b in l:
+            if (isinstance(to_proposition(a), Not)
+                    and to_proposition(a).children[0] == to_proposition(b)):
+                return False
+    return True

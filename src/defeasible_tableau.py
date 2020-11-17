@@ -44,10 +44,19 @@ class Tableau:
         arguments_for_inconsistency: List[Argument] = []
         while True:
             self.root.expand()  # 1.
-            inconsistencies = self.transform_arguments(
+            candidates = self.transform_arguments(
                 self.root.arguments_for_inconsistency())  # 2. & 3.
-            new_arguments = [a for a in inconsistencies
-                             if a not in self.root.arguments]  # 4.
+            new_arguments = []
+            # 4.:
+            for c in candidates:
+                exists_already = False
+                for old in self.root.arguments:
+                    if (c.conclusion == old.conclusion
+                            and set(old.support).issubset(set(c.support))):
+                        exists_already = True
+                if not exists_already:
+                    new_arguments.append(c)
+            print([str(a) for a in new_arguments])
             self.root.add(new_arguments)  # 4.
             if len(new_arguments) == 0:
                 break  # 5
@@ -78,15 +87,14 @@ class Tableau:
                     new_arguments.append(
                         Argument(support, test.nonnegated_content()))
                 # 2.:
-                else:
-                    for rule in self.rules:
-                        if rule.antecedence == test.nonnegated_content():
-                            new_arguments.append(
-                                Argument(
-                                    [Argument(support, rule)],
-                                    rule.consequence
-                                )
+                for rule in self.rules:
+                    if rule.antecedence == test.nonnegated_content():
+                        new_arguments.append(
+                            Argument(
+                                [Argument(support, rule)],
+                                rule.consequence
                             )
+                        )
             elif len(tests) == 0:
                 pass  # TODO deal with inconsistencies in the initial information
         return new_arguments
