@@ -53,7 +53,8 @@ class Node:
                 for b in simple:
                     # Check whether they are inconsistent:
                     if (isinstance(to_proposition(a), Not)
-                            and to_proposition(a).children[0] == to_proposition(b)):
+                            and (to_proposition(a).children[0] == to_proposition(b)
+                                 or to_proposition(a).children[0] == T())):
                         # Create an argument for the inconsistency
                         # by merging the supports of the arguments leading to it:
                         support = list(set(a.support + b.support))
@@ -153,10 +154,12 @@ class Node:
         # `negated` is `Not(p)`, while avoiding a double negation.
         negated = p.children[0] if isinstance(p, Not) else Not(p)
         for a in self.arguments:
-            if to_proposition(a) == p:
-                arguments_for.append(a)
-            elif to_proposition(a) == negated:
-                arguments_against.append(a)
+            tests = [p for p in a.support if isinstance(p, Test)]
+            if len(tests) == 0:
+                if to_proposition(a) == p:
+                    arguments_for.append(a)
+                elif to_proposition(a) == negated:
+                    arguments_against.append(a)
         return arguments_for, arguments_against
 
     def add(self, arguments: List[Argument]):

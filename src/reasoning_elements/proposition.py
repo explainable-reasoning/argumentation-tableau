@@ -4,7 +4,6 @@ import itertools
 import functools
 
 
-@functools.total_ordering
 class Proposition:
     """
     Each proposition is either a truth value, a variable, or a complex (=composite) proposition, made up of some other propositions and an operator connecting them. This abstract class defines some common methods for all of them.
@@ -53,6 +52,7 @@ class Proposition:
         return hash(str(self))
 
 
+@functools.total_ordering
 class Variable(Proposition):
     """
     An atomic proposition consisting of just a propositional variable.
@@ -82,6 +82,7 @@ class Variable(Proposition):
         return hash(str(self))
 
 
+@functools.total_ordering
 class TruthValue(Proposition):
     """
     An atomic proposition consisting of just a fixed truth value (true or false).
@@ -178,6 +179,7 @@ class ComplexProposition(Proposition):
         """
 
 
+@functools.total_ordering
 class And(ComplexProposition):
     operator_symbol = '∧'
     def operator(self, a, b): return a and b
@@ -190,6 +192,7 @@ class And(ComplexProposition):
         return [[Not(self.children[0])], [Not(self.children[1])]]
 
 
+@functools.total_ordering
 class Or(ComplexProposition):
     operator_symbol = '∨'
     def operator(self, a, b): return a or b
@@ -202,6 +205,7 @@ class Or(ComplexProposition):
         return [[Not(self.children[0]), Not(self.children[1])]]
 
 
+@functools.total_ordering
 class Implies(ComplexProposition):
     operator_symbol = '→'
     def operator(self, a, b): return b or (not a)
@@ -214,6 +218,7 @@ class Implies(ComplexProposition):
         return [[self.children[0], Not(self.children[1])]]
 
 
+@functools.total_ordering
 class Equiv(ComplexProposition):
     operator_symbol = '↔'
     def operator(self, a, b): return a == b
@@ -228,12 +233,16 @@ class Equiv(ComplexProposition):
                 [Not(Implies(self.children[1], self.children[0]))]]
 
 
+@functools.total_ordering
 class Not(ComplexProposition):
     operator_symbol = '¬'
     def operator(self, a): return not a
+
     def is_forking(self):
-        if isinstance(self.children[0], Not): return False
-        else: return not self.children[0].is_forking()
+        if isinstance(self.children[0], Not):
+            return False
+        else:
+            return not self.children[0].is_forking()
 
     def decompose(self):
         return self.children[0].decompose_negated()
@@ -242,6 +251,7 @@ class Not(ComplexProposition):
         return [[self.children[0]]]
 
 # Helpers
+
 
 # Flattens a list of lists to a list.
 flat = itertools.chain.from_iterable

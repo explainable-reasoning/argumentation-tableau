@@ -11,9 +11,9 @@ The logic for the defeasible tableau is split between this file and `node.py`.
 
 class Tableau:
     def __init__(self,
-                 initial_information: List[Proposition],
-                 rules: List[Rule],
-                 final_conclusion: Proposition
+                 final_conclusion: Proposition,
+                 initial_information: List[Proposition] = [],
+                 rules: List[Rule] = []
                  ):
         """
         On initialization, the root node will be created and filled with the appropriate arguments.
@@ -57,28 +57,36 @@ class Tableau:
 
     def transform_arguments(self, inconsistencies: List[Argument]) -> List[Argument]:
         """
-        This takes arguments for an inconsistency such as
+        This takes arguments for an inconsistency such as:
             ({¬a?, b, ¬c}, False)
-        and converts them into constructive arguments
+        If the test is about the final conclusion, 
+        then it will create a constructive argument:
             ({b, ¬c}, a)                (1.)
-        and, if there is a rule such as
+        If the test is about an antecedence of a rule
             a ~> d
-        then it will also create a constructive argument
+        then it will create a constructive argument:
             ({b, ¬c}, a ~> d)           (2.)
         """
         new_arguments = []
         for a in inconsistencies:
             tests: List[Test] = [p for p in a.support if isinstance(p, Test)]
             if len(tests) == 1:
-                # 1.:
                 test = tests[0]
                 support = [p for p in a.support if str(p) != str(test)]
-                new_arguments.append(
-                    Argument(support, test.nonnegated_content()))
+                # 1.:
+                if test.nonnegated_content() == self.final_conclusion:
+                    new_arguments.append(
+                        Argument(support, test.nonnegated_content()))
                 # 2.:
-                for rule in self.rules:
-                    if rule.antecedence == test.nonnegated_content():
-                        new_arguments.append(Argument(support, rule))
+                else:
+                    for rule in self.rules:
+                        if rule.antecedence == test.nonnegated_content():
+                            new_arguments.append(
+                                Argument(
+                                    [Argument(support, rule)],
+                                    rule.consequence
+                                )
+                            )
             elif len(tests) == 0:
                 pass  # TODO deal with inconsistencies in the initial information
         return new_arguments
