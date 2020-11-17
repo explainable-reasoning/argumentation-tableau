@@ -19,7 +19,7 @@ def str_list(l):
 
 def test_simple_nondefeasible_proposition():
     tableau = Tableau(
-        final_conclusion=parse('a'),
+        question=parse('a'),
         initial_information=[parse('a')]
     )
     pro, contra = tableau.evaluate()
@@ -27,7 +27,7 @@ def test_simple_nondefeasible_proposition():
     assert str_list(contra) == []
 
     tableau = Tableau(
-        final_conclusion=parse('a'),
+        question=parse('a'),
         initial_information=[parse('¬a')]
     )
     pro, contra = tableau.evaluate()
@@ -35,15 +35,15 @@ def test_simple_nondefeasible_proposition():
     assert str_list(contra) == ['({¬a}, ¬a)']
 
     tableau = Tableau(
-        final_conclusion=parse('¬a'),
-        initial_information=[parse('a')],
+        question=parse('¬a'),
+        initial_information=[parse('a')]
     )
     pro, contra = tableau.evaluate()
     assert str_list(pro) == []
     assert str_list(contra) == ['({a}, a)']
 
     tableau = Tableau(
-        final_conclusion=parse('¬a'),
+        question=parse('¬a'),
         initial_information=[parse('¬a')],
     )
     pro, contra = tableau.evaluate()
@@ -52,7 +52,7 @@ def test_simple_nondefeasible_proposition():
 
 
 def test_simple_nondefeasible_tautology():
-    tableau = Tableau(final_conclusion=parse('True'))
+    tableau = Tableau(question=parse('True'))
     pro, contra = tableau.evaluate()
     assert str_list(pro) == ['({}, True)']
     assert str_list(contra) == []
@@ -63,7 +63,7 @@ def test_simple_nondefeasible_contradiction():
     The tableau does not find a counterargument to a contradiction. 
     TODO Is this desired behaviour?
     """
-    tableau = Tableau(final_conclusion=parse('¬True'))
+    tableau = Tableau(question=parse('¬True'))
     pro, contra = tableau.evaluate()
     assert str_list(pro) == []
     assert str_list(contra) == []
@@ -74,7 +74,7 @@ def test_complex_nondefeasible_proposition():
     Cf. `test_propositional_tableau.py`
     """
     tableau = Tableau(
-        final_conclusion=parse('(p ∨ (q ∧ r)) → ((p ∨ q) ∧ (p ∨ r))')
+        question=parse('(p ∨ (q ∧ r)) → ((p ∨ q) ∧ (p ∨ r))')
     )
     pro, contra = tableau.evaluate()
     assert str_list(pro) == [
@@ -85,7 +85,7 @@ def test_complex_nondefeasible_proposition():
 
 def test_apply_1_rule():
     tableau = Tableau(
-        final_conclusion=parse('b'),
+        question=parse('b'),
         initial_information=[parse('a')],
         rules=[Rule(parse('a'), parse('b'))]
     )
@@ -96,7 +96,7 @@ def test_apply_1_rule():
 
 def test_chain_2_rules():
     tableau = Tableau(
-        final_conclusion=parse('c'),
+        question=parse('c'),
         initial_information=[parse('a')],
         rules=[
             Rule(parse('a'), parse('b')),
@@ -110,7 +110,7 @@ def test_chain_2_rules():
 
 def test_chain_3_rules():
     tableau = Tableau(
-        final_conclusion=parse('d'),
+        question=parse('d'),
         initial_information=[parse('a')],
         rules=[
             Rule(parse('a'), parse('b')),
@@ -144,12 +144,13 @@ def test_logic_example_1():
                 parse('s')
             )
         ],
-        final_conclusion=parse('s')
+        question=parse('s')
     )
     pro, contra = tableau.evaluate()
     assert str_list(pro) == [
-        '({({({p ∨ q, ¬q}, p ~> r)}, r ~> s)}, s)',
-        '({({({p ∨ q, ¬q}, p ~> r), p ∨ q, ¬q}, r ~> s)}, s)' # TODO
+        '({({({p ∨ q, ¬q}, p ~> r), p ∨ q, ¬q}, r ~> s)}, s)', # TODO
+        '({({({p ∨ q, ¬q}, p ~> r)}, r ~> s)}, s)'
+        
     ]
     assert str_list(contra) == []
 
@@ -176,7 +177,7 @@ def test_logic_example_2():
                 parse('¬q')
             )
         ],
-        final_conclusion=parse('q')
+        question=parse('q')
     )
     pro, contra = tableau.evaluate()
     assert str_list(pro) == [
@@ -207,7 +208,7 @@ def test_logic_example_3():
                 parse('q')
             )
         ],
-        final_conclusion=parse('s'),
+        question=parse('s'),
     )
     pro, contra = tableau.evaluate()
     assert str_list(pro) == [
@@ -250,7 +251,7 @@ def test_law_example():
                 parse('¬CanMakeRequestForChange')
             )
         ],
-        final_conclusion=parse('¬CanMakeRequestForChange')
+        question=parse('¬CanMakeRequestForChange')
     )
     preference = [
         (1, 0),  # R2 > R1
@@ -336,7 +337,7 @@ def test_law_example_2():
                 parse('LEGAL_RequestedChangeWorkingHours')
             )
         ],
-        final_conclusion=parse('LEGAL_RequestedChangeWorkingHours')
+        question=parse('LEGAL_RequestedChangeWorkingHours')
     )
     preference = [
         (1, 0),  # R2 > R1

@@ -1,13 +1,14 @@
 from reasoning_elements.proposition import *
 
 
-def test():
+def test_or():
     # B or not B
     shakespeare = Or('B', Not('B'))
     assert str(shakespeare) == 'B ∨ ¬B'
     assert shakespeare.truthtable() == [({'B': True}, True),
                                         ({'B': False}, True)]
 
+def test_implies():
     # A implies B
     impl = Implies('A', 'B')
     assert str(impl) == 'A → B'
@@ -16,6 +17,7 @@ def test():
                                  ({'A': False, 'B': True}, True),
                                  ({'A': False, 'B': False}, True)]
 
+def test_and():
     # A and B and C
     multiconj = And('A', And('B', 'C'))
     assert str(multiconj) == 'A ∧ (B ∧ C)'
@@ -28,11 +30,13 @@ def test():
                                       ({'A': False, 'B': False, 'C': True}, False),
                                       ({'A': False, 'B': False, 'C': False}, False)]
 
+def test_implies_2():
     # True implies X
     impl2 = Implies(T(), 'X')
     assert str(impl2) == 'True → X'
     assert impl2.truthtable() == [({'X': True}, True), ({'X': False}, False)]
 
+def test_false():
     # False
     f = F()
     assert str(f) == 'False'

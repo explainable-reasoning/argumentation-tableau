@@ -12,21 +12,21 @@ Note that the propositional tableau currently uses its own Node structure (found
 
 class Node:
     """
-    A node is a list of arguments, and a list of child nodes.
+    A node is a set of arguments, and a list of child nodes.
     """
 
-    def __init__(self, arguments: List[Argument]):
+    def __init__(self, arguments: Set[Argument]):
         self.arguments = arguments
         self.children: List['Node'] = []
 
-    def __str__(self, indent: str = '', parentArguments: List[Argument] = []):
+    def __str__(self, indent: str = '', parentArguments: Set[Argument] = set()):
         """
         Does some fancy recursive indented printing. 
         See `__str__` in `propositional_tableau.py` for an explanation how it works.
         """
         return (indent
-                + ('\n' + indent).join([str(a) for a in self.arguments
-                                        if a not in parentArguments])
+                + ('\n' + indent).join({str(a) for a in self.arguments
+                                        if a not in parentArguments})
                 + '\n'
                 + '\n'.join([child.__str__(indent + '    ', self.arguments) for child in self.children]))
 
@@ -44,27 +44,22 @@ class Node:
         if len(self.children) == 0:
             # `Simple` refers to arguments with atomic propositions, or with negated atomic propositions.
             # We might find inconsistencies between these types of arguments.
-            simple: List[Argument] = \
-                [a for a in self.arguments if not a.conclusion.is_decomposable()]
+            simple: Set[Argument] = \
+                {a for a in self.arguments if not a.conclusion.is_decomposable()}
             # 1.:
             found_new_inconsistency = False
             # Check out all pairs:
             for a in simple:
                 for b in simple:
                     # Check whether they are inconsistent:
-                    if (isinstance(to_proposition(a), Not)
-                            and (to_proposition(a).children[0] == to_proposition(b)
-                                 or to_proposition(a).children[0] == T())):
+                    if not consistent([a, b]):
                         # Create an argument for the inconsistency
                         # by merging the supports of the arguments leading to it:
-                        support = list(set(a.support + b.support))
+                        support = a.support.union(b.support)
                         new_inconsistency = Argument(support, F())
                         if not new_inconsistency in self.arguments:
                             self.children.append(
-                                Node(
-                                    self.arguments +
-                                    [new_inconsistency]
-                                )
+                                Node(self.arguments | set([new_inconsistency]))
                             )
                             # We have already created a child, that's enough for now:
                             found_new_inconsistency = True
@@ -73,17 +68,17 @@ class Node:
             if not found_new_inconsistency:
                 # `Complex` refers to arguments with a decomposable conclusion
                 # (that is, we can apply a tableau rule there).
-                complex: List[Argument] = \
-                    [a for a in self.arguments if a.conclusion.is_decomposable()]
+                complex: Set[Argument] = self.arguments - simple
                 if len(complex) > 0:
                     # We sort the unexpanded propositions,
                     # so that we preferably first decompose those arguments
                     # where this does not lead to forking (=branching).
                     complex_and_forking = \
-                        [p for p in complex if p.conclusion.is_forking()]
+                        {p for p in complex if p.conclusion.is_forking()}
                     complex_and_not_forking = \
-                        [p for p in complex if not p.conclusion.is_forking()]
-                    sorted_complex = complex_and_not_forking + complex_and_forking
+                        {p for p in complex if not p.conclusion.is_forking()}
+                    sorted_complex = list(
+                        complex_and_not_forking) + list(complex_and_forking)
                     # We only decompose the first one of this list for now.
                     to_be_decomposed = sorted_complex[0]
                     # This creates a list of one or two lists (branches) of lists of arguments.
@@ -92,17 +87,17 @@ class Node:
                             Node(
                                 # We remove the decomposed argument in the child node,
                                 # because we don't want to consider it again:
-                                [a for a in self.arguments if a != to_be_decomposed]
+                                {a for a in self.arguments if a != to_be_decomposed}
                                 # And we add the new arguments for the respective branch:
-                                + [Argument(to_be_decomposed.support, argument)
-                                   for argument in branch]
+                                | {Argument(to_be_decomposed.support, argument)
+                                   for argument in branch}
                             )
                         )
         # 3.
         for child in self.children:
             child.expand()
 
-    def arguments_for_inconsistency(self) -> List[Argument]:
+    def arguments_for_inconsistency(self) -> Set[Argument]:
         """
         Return all arguments for an inconsistency in the node or in any child node.
         We do this by considering the inconsistencies in the leaf nodes and then merging them together
@@ -111,7 +106,7 @@ class Node:
         because we won't be able to convert hese inconsistencies into useful constructive arguments later.
         Inconsistencies are arguments with `F()` ("false", or ⟘) in their support.
         """
-        arguments: List[Argument] = []
+        arguments: Set[Argument] = set()
         if len(self.children) == 0:
             # Here we are at a leaf node.
             # We find and return arguments where the conclusion is an inconsistency
@@ -119,9 +114,9 @@ class Node:
 
             for a in self.arguments:
                 if a.conclusion == F():
-                    tests = [s for s in a.support if isinstance(s, Test)]
+                    tests = {s for s in a.support if isinstance(s, Test)}
                     if len(tests) <= 1:
-                        arguments.append(a)
+                        arguments.add(a)
         elif len(self.children) == 1:
             # Here we are in a straight branch.
             # We just pass upwards all the inconsistencies from the only child.
@@ -133,54 +128,40 @@ class Node:
             # So, we check all combinations of supports from the left and supports from the right:
             for left in self.children[0].arguments_for_inconsistency():
                 for right in self.children[1].arguments_for_inconsistency():
-                    # We merge the combination and eliminate duplicates.
-                    merged = set(left.support).union(set(right.support))
+                    # We merge the combination.
+                    merged = left.support.union(right.support)
                     # We keep only arguments with at most one test in the support.
                     tests = {s for s in merged if isinstance(s, Test)}
                     if len(tests) <= 1:
                         if consistent(merged - tests):
-                            arguments.append(Argument(merged, F()))
-                    """
-                    if len(tests) == 0:
-                        # And from the merged support we create
-                        # another argument for an inconsistency:
-                        arguments.append(Argument(merged, F()))
-                    if len(tests) == 1:
-                        test = tests[0]
-                        complex_conclusions = [to_proposition(s) for s in merged
-                                               if not isinstance(s, Proposition)
-                                               and not isinstance(s, Test)]
-                        if not test.nonnegated_content() in complex_conclusions:
-                            arguments.append(Argument(merged, F()))
-                    """
+                            arguments.add(Argument(merged, F()))
 
-        # Keep only unique arguments.
-        return list(set(arguments))
+        return arguments
 
-    def arguments_for_and_against(self, p: Proposition):
+    def arguments_for_and_against(self, p: Proposition) -> Tuple[Set[Argument], Set[Argument]]:
         """
         Returns all arguments related to p:
         Those in favour of p, those opposing p.
         The argumentation framework will need to take care of them later.
         """
-        arguments_for: List[Argument] = []
-        arguments_against: List[Argument] = []
+        arguments_for: Set[Argument] = set()
+        arguments_against: Set[Argument] = set()
         # `negated` is `Not(p)`, while avoiding a double negation.
         negated = p.children[0] if isinstance(p, Not) else Not(p)
         for a in self.arguments:
-            tests = [p for p in a.support if isinstance(p, Test)]
+            tests = {p for p in a.support if isinstance(p, Test)}
             if len(tests) == 0:
                 if to_proposition(a) == p:
-                    arguments_for.append(a)
+                    arguments_for.add(a)
                 elif to_proposition(a) == negated:
-                    arguments_against.append(a)
+                    arguments_against.add(a)
         return arguments_for, arguments_against
 
-    def add(self, arguments: List[Argument]):
+    def add(self, arguments: Set[Argument]):
         """
         Adds a list of arguments to the node and all its child nodes.
         """
-        self.arguments += arguments
+        self.arguments.update(arguments)
         for child in self.children:
             child.add(arguments)
 
@@ -201,6 +182,7 @@ def consistent(l):
     for a in l:
         for b in l:
             if (isinstance(to_proposition(a), Not)
-                    and to_proposition(a).children[0] == to_proposition(b)):
+                    and (to_proposition(a).children[0] == to_proposition(b)
+                         or to_proposition(a).children[0] == T())):
                 return False
     return True
