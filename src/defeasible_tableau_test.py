@@ -350,8 +350,8 @@ def test_law_example_2():
     print(pro)
     print(contra)
     assert str_list(pro) == [
-
+        '({{Employed}, Employed ~> CanMakeRequestForChange)} CanMakeRequestForChange ~> LEGAL_RequestedChangeWorkingHours)'
     ]
     assert str_list(contra) == [
-        '({{Employed}, Employed ~> CanMakeRequestForChange)} CanMakeRequestForChange ~> LEGAL_RequestedChangeWorkingHours)'
+
     ]
