@@ -2,14 +2,21 @@ from typing import *
 from defeasible_tableau import *
 from reasoning_elements import *
 from propositional_parser import *
-from pytest import mark
+import pytest
+
+# Run all tests with `poetry run pytest src`.
+
+# Annotate tests with `@skip` to skip them.
+skip = pytest.mark.skip
+
 
 def str_list(l):
     return [str(a) for a in l]
 
+
 def test_law_example():
     """
-    Tomas Cremers, Appendix C.1
+    Tomas Cremers (2016), Appendix C.1
     """
     tableau = Tableau(
         initial_information=[
@@ -52,10 +59,10 @@ def test_law_example():
         '({Employed}, Employed ~> CanMakeRequestForChange)'
     ]
 
-@mark.skip
+@skip
 def test_logic_example_1():
     """
-    Source: from Nico's mail??
+    Source: Roos (2016), p. 7-9
     """
     tableau = Tableau(
         initial_information=[
@@ -72,18 +79,51 @@ def test_logic_example_1():
                 parse('s')
             )
         ],
-        final_conclusion=parse('s'),
+        final_conclusion=parse('s')
     )
     pro, contra = tableau.evaluate()
     assert str_list(pro) == [
-        'TODO'
+        '({({({p ∨ q, ¬q}, p ~> r)}, r ~> s)}, s)'
+    ]
+    assert str_list(contra) == []
+
+
+@skip
+def test_logic_example_2():
+    """
+    Source: Mail by Nico
+    """
+    tableau = Tableau(
+        initial_information=[
+            parse('p')
+        ],
+        rules=[
+            Rule(
+                parse('p'),
+                parse('q')
+            ),
+            Rule(
+                parse('q'),
+                parse('r')
+            ),
+            Rule(
+                parse('r'),
+                parse('¬q')
+            )
+        ],
+        final_conclusion=parse('q')
+    )
+    pro, contra = tableau.evaluate()
+    assert str_list(pro) == [
+        '({p}, p ~> q)'
     ]
     assert str_list(contra) == [
-        'TODO'
+        '({({p}, p ~> r), r ~> ¬q)'
     ]
 
-@mark.skip
-def test_logic_example_2():
+
+@skip
+def test_logic_example_3():
     """
     Source ???
     """
@@ -93,7 +133,7 @@ def test_logic_example_2():
             parse('r ∨ s'),
             parse('t'),
         ],
-        rules = [
+        rules=[
             Rule(
                 parse('r'),
                 parse('p')

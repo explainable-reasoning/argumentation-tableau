@@ -52,7 +52,8 @@ class Node:
             for a in simple:
                 for b in simple:
                     # Check whether they are inconsistent:
-                    if isinstance(a.conclusion, Not) and a.conclusion.children[0] == b.conclusion:
+                    if (isinstance(to_proposition(a), Not)
+                            and to_proposition(a).children[0] == to_proposition(b)):
                         # Create an argument for the inconsistency
                         # by merging the supports of the arguments leading to it:
                         support = list(set(a.support + b.support))
@@ -113,7 +114,7 @@ class Node:
             # Here we are at a leaf node.
             # We find and return arguments where the conclusion is an inconsistency
             # and where the support includes at most one test.
-            
+
             for a in self.arguments:
                 if a.conclusion == F():
                     tests = [s for s in a.support if isinstance(s, Test)]
@@ -135,7 +136,7 @@ class Node:
                     # We keep only arguments with at most one test in the support.
                     tests = [s for s in merged if isinstance(s, Test)]
                     if len(tests) <= 1:
-                        # And from the merged support we create 
+                        # And from the merged support we create
                         # another argument for an inconsistency:
                         arguments.append(Argument(merged, F()))
         # Keep only unique arguments.
@@ -152,13 +153,9 @@ class Node:
         # `negated` is `Not(p)`, while avoiding a double negation.
         negated = p.children[0] if isinstance(p, Not) else Not(p)
         for a in self.arguments:
-            if (a.conclusion == p
-                or (isinstance(a.conclusion, Rule)
-                    and a.conclusion.consequence == p)):
+            if to_proposition(a) == p:
                 arguments_for.append(a)
-            elif (a.conclusion == negated
-                  or (isinstance(a.conclusion, Rule)
-                      and a.conclusion.consequence == negated)):
+            elif to_proposition(a) == negated:
                 arguments_against.append(a)
         return arguments_for, arguments_against
 
@@ -169,3 +166,10 @@ class Node:
         self.arguments += arguments
         for child in self.children:
             child.add(arguments)
+
+
+def to_proposition(a: Argument) -> Proposition:
+    if isinstance(a.conclusion, Rule):
+        return a.conclusion.consequence
+    else:
+        return a.conclusion
