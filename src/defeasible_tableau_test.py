@@ -349,9 +349,9 @@ def test_law_example_2():
     pro, contra = tableau.evaluate()
     print(pro)
     print(contra)
-    # assert str_list(pro) == [
-    #
-    # ]
-    # assert str_list(contra) == [
-    #     '({{Employed}, Employed ~> CanMakeRequestForChange)} CanMakeRequestForChange '
-    # ]
+    assert str_list(pro) == [
+
+    ]
+    assert str_list(contra) == [
+        '({{Employed}, Employed ~> CanMakeRequestForChange)} CanMakeRequestForChange ~> LEGAL_RequestedChangeWorkingHours)'
+    ]
