@@ -122,8 +122,8 @@ def test_chain_3_rules():
     assert str_list(pro) == ['({({({({a}, a ~> b)}, b ~> c)}, c ~> d)}, d)']
     assert str_list(contra) == []
 
-# LOGIC EXAMPLES
 
+# LOGIC EXAMPLES
 
 def test_logic_example_1():
     """
@@ -148,9 +148,8 @@ def test_logic_example_1():
     )
     pro, contra = tableau.evaluate()
     assert str_list(pro) == [
-        '({({({p ∨ q, ¬q}, p ~> r), p ∨ q, ¬q}, r ~> s)}, s)', # TODO
+        '({({({p ∨ q, ¬q}, p ~> r), p ∨ q, ¬q}, r ~> s)}, s)',  # TODO
         '({({({p ∨ q, ¬q}, p ~> r)}, r ~> s)}, s)'
-        
     ]
     assert str_list(contra) == []
 
@@ -186,6 +185,7 @@ def test_logic_example_2():
     assert str_list(contra) == [
         '({({({({p}, p ~> q)}, q ~> r)}, r ~> ¬q)}, ¬q)'
     ]
+
 
 @skip
 def test_logic_example_3():
@@ -265,12 +265,6 @@ def test_law_example():
     assert str_list(contra) == [
         '({({Employed}, Employed ~> CanMakeRequestForChange)}, CanMakeRequestForChange)'
     ]
-    out = [
-        '({({Employed, MilitaryOfficial}, Employed ∧ MilitaryOfficial ~> ¬CanMakeRequestForChange)}, ¬CanMakeRequestForChange)',
-        '({({Employed}, Employed ~> CanMakeRequestForChange)}, CanMakeRequestForChange)'
-    ]
-    A = '({Employed, MilitaryOfficial}, Employed ∧ MilitaryOfficial ~> ¬CanMakeRequestForChange)'
-    B = '({Employed}, Employed ~> CanMakeRequestForChange)'
 
 
 @skip
@@ -279,6 +273,7 @@ def test_law_example_2():
     Tomas Cremers, Appendix C.2
     """
     tableau = Tableau(
+        question=parse('LEGAL_RequestedChangeWorkingHours'),
         initial_information=[
             parse('Employed'),
             parse('¬LessThanTenEmployees'),
@@ -318,17 +313,17 @@ def test_law_example_2():
             ),
             Rule(
                 parse(
-                    'CanMakeRequestForChange & DOES_RequestChangeWorkingHours & ¬RequestSubmittedInWriting'),
+                    'CanMakeRequestForChange & DOES_RequestChangeWorkingHours & (¬RequestSubmittedInWriting)'),
                 parse('¬LEGAL_RequestedChangeWorkingHours')
             ),
             Rule(
                 parse(
-                    'CanMakeRequestForChange & DOES_RequestChangeWorkingHours & ¬TimeSinceLastRequestMinOneYear'),
+                    'CanMakeRequestForChange & DOES_RequestChangeWorkingHours & (¬TimeSinceLastRequestMinOneYear)'),
                 parse('¬LEGAL_RequestedChangeWorkingHours')
             ),
             Rule(
                 parse(
-                    'CanMakeRequestForChange & DOES_RequestChangeWorkingHours & ¬WorkedForAtLeastTwentySixWeeks'),
+                    'CanMakeRequestForChange & DOES_RequestChangeWorkingHours & (¬WorkedForAtLeastTwentySixWeeks)'),
                 parse('¬LEGAL_RequestedChangeWorkingHours')
             ),
             Rule(
@@ -336,8 +331,7 @@ def test_law_example_2():
                     'CanMakeRequestForChange & DOES_RequestChangeWorkingHours &  UnforseenCircumstances'),
                 parse('LEGAL_RequestedChangeWorkingHours')
             )
-        ],
-        question=parse('LEGAL_RequestedChangeWorkingHours')
+        ]
     )
     preference = [
         (1, 0),  # R2 > R1
@@ -353,6 +347,4 @@ def test_law_example_2():
     assert str_list(pro) == [
         '({{Employed}, Employed ~> CanMakeRequestForChange)} CanMakeRequestForChange ~> LEGAL_RequestedChangeWorkingHours)'
     ]
-    assert str_list(contra) == [
-
-    ]
+    assert str_list(contra) == []
