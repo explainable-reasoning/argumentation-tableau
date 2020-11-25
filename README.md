@@ -14,8 +14,8 @@
 The code consists of 4 main parts:
 - A parser for propositional logic. It could easily be extended for defeasible logic. See `propositional_parser.py`. Tests ✔️
 - A tableau for propositional logic. See `propositional_tableau.py`. Tests ✔️
-- A tableau for defeasible logic. See `defeasible_tableau.py`. Tests ✖️
-- Datastructures and helper functions. See `reasoning_elements/`. Some but not all are tested.
+- A tableau for defeasible logic. See `defeasible_tableau.py`. Some tests failing ✔️✖
+- Datastructures and helper functions. See `reasoning_elements/`. Not everything tested (✔️)
 
 ## Data structures
 
@@ -26,7 +26,7 @@ The data structures usually have at least some of the following methods:
 - `__hash__` for allowing the construction of (hash) sets with objects of the class. Ususally this is just implemented as `hash(str(..))` for simplicity.
 - `__lt__` ("less than") for sorting the objects. By decorating the class with `@functools.total_ordering`, this will automatically create the other ordering methods, such as `__gt__` ("greater than"), etc. This function is relevant for creating correct `__eq__` instances for lists of objects that are really sets. (We create a unique ordering by sorting the string representations of the elements.) Maybe it would be better to actually make them sets. But then, we wouldn't have these nice pythonish list comprehensions.
 
-There is a hierarchy between the classes: For example `class And(ComplexProposition):` means that `And` inherits all methods from `ComplexProposition. Furthermore, `And` needs to implement all methods from `ComplexProposition` that are decorated by `@abstractmethod`.
+There is a hierarchy between the classes: For example `class And(ComplexProposition):` means that `And` inherits all methods from `ComplexProposition`. Furthermore, `And` needs to implement all methods from `ComplexProposition` that are decorated by `@abstractmethod`.
 
 The hierarchy of the `Proposition` classes (see `reasoning_elements/proposition.py`) is as follows:
 
