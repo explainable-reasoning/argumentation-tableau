@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Defeasible Tableau</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="bootstrap.min.css" />
+
+</head>
+
+<body class="container" style="max-width: 75ch">
+
+    <header>
+        <h1 class="display-4">Defeasible Tableau</h1>
+        <p>
+            Enter a formular in propositional logic. All expressions except atoms need to be nested with brackets. The
+            logical symbols can be typed as you prefer:
+        <ul>
+            <li>implies, impl, -->, ->, -> will all work for the logial implication</li>
+            <li>f, fAlSe, 0 will all work for false</li>
+            <li>etc.</li>
+        </ul>
+        </p>
+
+    </header>
+
+    <main>
+        Rules:
+        <textarea id="rules" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+            class="form-control" style="min-height: 150px">Employed ~> CanMakeRequestForChange
+Employed & LessThanTenEmployees ~> ¬CanMakeRequestForChange
+Employed & ReachedOldAgeInsurance ~> ¬CanMakeRequestForChange
+Employed & MilitaryOfficial ~> ¬CanMakeRequestForChange
+                </textarea><br />
+        Initial information:
+        <textarea id="initial-information" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+            class="form-control" style="min-height: 150px">Employed
+¬LessThanTenEmployees
+¬ReachedOldAgeInsurance
+MilitaryOfficial
+WorkedForAtLeastTwentySixWeeks
+                </textarea><br />
+        Question:
+        <textarea id="question" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+            class="form-control" style="min-height: 50px">CanMakeRequestForChange
+        </textarea><br />
+        <input id="submit" type="submit" value="Get Arguments" class="btn btn-primary"
+            style="width: 100%" /><br /><br />
+        <div id="target" style="visibility: hidden;">
+            <b>Pro:</b>
+            <div id="pro" style="white-space: pre-wrap"></div>
+            <br/>
+            <b>Contra:</b>
+            <div id="contra" style="white-space: pre-wrap"></div>
+        </div>
+        <br />
+    </main>
+
+    <script>
+        document.getElementById("submit").onclick = e => {
+            document.getElementById("target").style.visibility = 'hidden'
+            fetch("/api/defeasible-tableau", {
+                method: "POST",
+                body: JSON.stringify({
+                    rules: process(document.getElementById("rules").value)
+                        .map(rule => rule.split(/~>/)),
+                    initial_information: process(document.getElementById("initial-information").value),
+                    question: process(document.getElementById("question").value)[0]
+                })
+            }).then(res =>
+                res.text().then(res => {
+                    arguments = JSON.parse(res)
+                    document.getElementById("pro").innerText = arguments[0]
+                    document.getElementById("contra").innerText = arguments[1]
+                    document.getElementById("target").style.visibility = 'visible'
+                })
+            );
+        }
+
+        process = string => string.replace(/ |\s*$/g, "").split(/\n/)
+    </script>
+
+</body>
+
+</html>

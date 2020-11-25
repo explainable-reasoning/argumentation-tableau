@@ -20,6 +20,7 @@ class Tableau:
         The `question` refers to the conclusion for which the tableau should generate (counter)arguments.
         """
         self.root = Node(
+            # `|` is the union operation on sets
             # Arguments for the initial information:
             {Argument(set([p]), p) for p in initial_information}
             # Tests for the final conclusion:
@@ -97,3 +98,6 @@ class Tableau:
             elif len(tests) == 0:
                 pass  # TODO deal with inconsistencies in the initial information
         return new_arguments
+
+    def __str__(self):
+        return str(self.root)
