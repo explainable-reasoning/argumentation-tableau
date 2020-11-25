@@ -1,4 +1,4 @@
-from propositional_logic import *
+from reasoning_elements.proposition import *
 from lark import Lark, Transformer, v_args, Tree
 
 logic_grammar = r"""
@@ -11,7 +11,7 @@ logic_grammar = r"""
     nary    : (exp (and exp)+) | (exp (or exp)+)
     true    : "t"i | "1" | "true"i | "yes"i
     false   : "f"i | "0" | "false"i | "no"i
-    variable: /[a-zA-Zα-ωΑ-Ω_]/
+    variable: /[a-zA-Zα-ωΑ-Ω_]+/
     not     : "¬" | "not"i | "neg"i | "~" | "-" | "!"
     and     : "∧" | "and"i | "&"~1..2 | "^" | ","
     or      : "∨" | "or"i  | "|"~1..2 | "v" | "/"
@@ -21,11 +21,9 @@ logic_grammar = r"""
     %import common.WS
     %ignore WS
 """
-
-
 @v_args(inline=True)
 class TreeToJson2(Transformer):
-    from propositional_logic import Not, And, Or, Implies, Equiv
+    from reasoning_elements.proposition import Not, And, Or, Implies, Equiv
 
     ops = {"and": And,
            "or": Or,
@@ -63,7 +61,7 @@ class TreeToJson2(Transformer):
         return F()
 
     def variable(self, a):
-        return Variable(a[0])
+        return Variable(a)
 
 
 def parse(a):
