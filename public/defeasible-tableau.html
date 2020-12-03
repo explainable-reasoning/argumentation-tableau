@@ -26,14 +26,14 @@
     </header>
 
     <main>
-        Rules:
+        <h3>Rules:</h3>
         <textarea id="rules" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
             class="form-control" style="min-height: 150px">Employed ~> CanMakeRequestForChange
 Employed & LessThanTenEmployees ~> ¬CanMakeRequestForChange
 Employed & ReachedOldAgeInsurance ~> ¬CanMakeRequestForChange
 Employed & MilitaryOfficial ~> ¬CanMakeRequestForChange
                 </textarea><br />
-        Initial information:
+        <h3>Initial information:</h3>
         <textarea id="initial-information" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
             class="form-control" style="min-height: 150px">Employed
 ¬LessThanTenEmployees
@@ -41,17 +41,17 @@ Employed & MilitaryOfficial ~> ¬CanMakeRequestForChange
 MilitaryOfficial
 WorkedForAtLeastTwentySixWeeks
                 </textarea><br />
-        Question:
+        <h3>Question:</h3>
         <textarea id="question" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
             class="form-control" style="min-height: 50px">CanMakeRequestForChange
         </textarea><br />
         <input id="submit" type="submit" value="Get Arguments" class="btn btn-primary"
             style="width: 100%" /><br /><br />
         <div id="target" style="visibility: hidden;">
-            <b>Pro:</b>
+            <h4>Pro:</h4>
             <div id="pro" style="white-space: pre-wrap"></div>
             <br/>
-            <b>Contra:</b>
+            <h4>Contra:</h4>
             <div id="contra" style="white-space: pre-wrap"></div>
         </div>
         <br />
