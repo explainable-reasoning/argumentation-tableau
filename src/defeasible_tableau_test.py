@@ -144,7 +144,10 @@ def test_logic_example_1():
                 parse('s')
             )
         ],
-        question=parse('s')
+        question=parse('s'),
+        preference=[
+            (1, 2)
+        ]
     )
     pro, contra = tableau.evaluate()
     assert str_list(pro) == [
@@ -176,7 +179,12 @@ def test_logic_example_2():
                 parse('¬q')
             )
         ],
-        question=parse('q')
+        question=parse('q'),
+        preference=[
+            (0, 1),  # R2 > R1
+            (1, 2),  # R3 > R1
+        ]
+
     )
     pro, contra = tableau.evaluate()
     assert str_list(pro) == [
@@ -251,13 +259,13 @@ def test_law_example():
                 parse('¬CanMakeRequestForChange')
             )
         ],
-        question=parse('¬CanMakeRequestForChange')
-    )
-    preference = [
+        question=parse('¬CanMakeRequestForChange'),
+        preference = [
         (1, 0),  # R2 > R1
         (2, 0),  # R3 > R1
         (3, 0),  # R4 > R1
     ]
+    )
     pro, contra = tableau.evaluate()
     assert str_list(pro) == [
         '({({Employed, MilitaryOfficial}, Employed ∧ MilitaryOfficial ~> ¬CanMakeRequestForChange)}, ¬CanMakeRequestForChange)'
@@ -331,16 +339,23 @@ def test_law_example_2():
                     'CanMakeRequestForChange & DOES_RequestChangeWorkingHours &  UnforseenCircumstances'),
                 parse('LEGAL_RequestedChangeWorkingHours')
             )
+        ],
+        preference=[
+            (1, 0),  # R2 > R1
+            (2, 0),  # R3 > R1
+            (3, 0),
+            (4, 1),# R4 > R1
+            (4, 2),
+            (4, 3),
+            (6, 5),
+            (7, 5),
+            (8, 5),
+            (9, 6),
+            (9, 7),
+            (9, 8)
         ]
     )
-    preference = [
-        (1, 0),  # R2 > R1
-        (2, 0),  # R3 > R1
-        (3, 0),  # R4 > R1
-        (5, 2),
-        (5, 3),
 
-    ]
     pro, contra = tableau.evaluate()
     print(pro)
     print(contra)
@@ -348,3 +363,42 @@ def test_law_example_2():
         '({{Employed}, Employed ~> CanMakeRequestForChange)} CanMakeRequestForChange ~> LEGAL_RequestedChangeWorkingHours)'
     ]
     assert str_list(contra) == []
+
+
+def test_undercutting_argument():
+    """
+        Source: Mail by Nico
+        """
+    tableau = Tableau(
+        initial_information=[
+            parse('p')
+        ],
+        rules=[
+            Rule(
+                parse('p'),
+                parse('q')
+            ),
+            Rule(
+                parse('q'),
+                parse('r')
+            ),
+            Rule(
+                parse('r'),
+                parse('¬q')
+            )
+        ],
+        question=parse('q'),
+        preference=[
+            (0, 1),  # R2 > R1
+            (1, 2),  # R3 > R1
+        ]
+
+    )
+    pro, contra = tableau.evaluate()
+    under_cutting = {}
+    for argum in contra:
+        underCutting_index, Cutting_argument = under_cutting[str(argum)] = tableau.underCutting_Argument(argum)
+        assert str(Cutting_argument) == '({({({p}, p ~> q)}, q ~> r)}, r ~> ¬q)'
+        assert underCutting_index == 2
+
+

@@ -13,7 +13,8 @@ class Tableau:
     def __init__(self,
                  question: Proposition,
                  initial_information: Set[Proposition] = set(),
-                 rules: Set[Rule] = set()
+                 rules: Set[Rule] = set(),
+                 preference: Set[tuple] = set()
                  ):
         """
         On initialization, the root node will be created and filled with the appropriate arguments.
@@ -21,15 +22,18 @@ class Tableau:
         """
         self.root = Node(
             # Arguments for the initial information:
-            {Argument(set([p]), p) for p in initial_information}
+            {Argument(set([p]), p, -1) for p in initial_information}
             # Tests for the final conclusion:
-            | {Argument(set([Test(Not(question))]), Not(question))}
+            | {Argument(set([Test(Not(question))]), Not(question), -1)}
             # Tests for the antecedences of all rules:
             | {Argument(set([Test(Not(rule.antecedence))]),
-                        Not(rule.antecedence)) for rule in rules}
+                        Not(rule.antecedence), -1) for rule in rules}
         )
-        self.rules = rules
+        self.preference = preference
+        self.rules = self.rule_defeasible_level(rules,self.preference)
         self.question = question
+        self.UnderCutting_argument = None
+        self.defeating_order = []
 
     def evaluate(self) -> Tuple[List[Argument], List[Argument]]:
         """
@@ -85,15 +89,88 @@ class Tableau:
                 if test.nonnegated_content() == self.question:
                     new_arguments.add(
                         Argument(support, test.nonnegated_content()))
-                # 2.:
-                for rule in self.rules:
-                    if rule.antecedence == test.nonnegated_content():
-                        new_arguments.add(
-                            Argument(
-                                set([Argument(support, rule)]),
-                                rule.consequence
+                # 2.: apply the rule
+                try:
+                    for index,rule in enumerate(self.rules):
+                        if rule.antecedence == test.nonnegated_content():
+                            new_arguments.add(
+                                Argument(
+                                    set([Argument(support, rule, index),]),
+                                    rule.consequence,index
+                                )
                             )
-                        )
+                except:
+                    syslog = "can not load the index of rules, continue with no preference"
+                    print(syslog)
+                    for rule in self.rules:
+                        if rule.antecedence == test.nonnegated_content():
+                            new_arguments.add(
+                                Argument(
+                                    set([Argument(support, rule, -1)]),
+                                    rule.consequence, -1
+                                )
+                            )
+
             elif len(tests) == 0:
                 pass  # TODO deal with inconsistencies in the initial information
         return new_arguments
+
+    @staticmethod
+    def rule_defeasible_level(Inital_rule:Set[Rule], preference: Set[tuple]):
+        """
+                This inital the defeasible level of defeasible rule by the preference.
+                the tuple(1,0) means rules[1] covers rules[0]
+        """
+        copy_perfence = set(preference.copy())
+        weaker_set = set()
+        while len(copy_perfence) > 0:
+
+            prior_list = set([i[0] for i in copy_perfence])
+            poor_list = set([i[1] for i in copy_perfence])
+
+            weaker_set = weaker_set | poor_list - prior_list
+
+            for index, rule in enumerate(Inital_rule):
+                if index not in weaker_set:
+                    Inital_rule[index].DefeasibleRule_priorUp()
+
+            for prefernece_tuple in preference:
+                if prefernece_tuple[1] in weaker_set:
+                    copy_perfence.discard(prefernece_tuple)
+
+        return Inital_rule
+
+
+    def underCutting_Argument(self, argument: Argument):
+        search_list = []
+        for spt in argument.support:
+            if isinstance(spt,Argument):
+                search_list.append(spt)
+
+        underCutting_index = 0
+        Cutting_argument = None
+        while len(search_list) > 0:
+            temp_argument = search_list.pop()
+            if temp_argument.Applied_rule != -1:
+                if self.rules[underCutting_index].defeasible_level > self.rules[temp_argument.Applied_rule].defeasible_level:
+                    underCutting_index = temp_argument.Applied_rule
+                    Cutting_argument = temp_argument
+            for spt in temp_argument.support:
+                if isinstance(spt, Argument):
+                    search_list.append(spt)
+        return underCutting_index, Cutting_argument
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

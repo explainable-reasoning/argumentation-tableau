@@ -18,6 +18,7 @@ class Node:
     def __init__(self, arguments: Set[Argument]):
         self.arguments = arguments
         self.children: List['Node'] = []
+        self.processed_information = set()
 
     def __str__(self, indent: str = '', parentArguments: Set[Argument] = set()):
         """
@@ -56,7 +57,7 @@ class Node:
                         # Create an argument for the inconsistency
                         # by merging the supports of the arguments leading to it:
                         support = a.support.union(b.support)
-                        new_inconsistency = Argument(support, F())
+                        new_inconsistency = Argument(support, F(), -1)
                         if not new_inconsistency in self.arguments:
                             self.children.append(
                                 Node(self.arguments | set([new_inconsistency]))
@@ -89,7 +90,7 @@ class Node:
                                 # because we don't want to consider it again:
                                 {a for a in self.arguments if a != to_be_decomposed}
                                 # And we add the new arguments for the respective branch:
-                                | {Argument(to_be_decomposed.support, argument)
+                                | {Argument(to_be_decomposed.support, argument, -1)
                                    for argument in branch}
                             )
                         )
@@ -134,7 +135,7 @@ class Node:
                     tests = {s for s in merged if isinstance(s, Test)}
                     if len(tests) <= 1:
                         if consistent(merged - tests):
-                            arguments.add(Argument(merged, F()))
+                            arguments.add(Argument(merged, F(), -1))
 
         return arguments
 
@@ -146,6 +147,7 @@ class Node:
         """
         arguments_for: Set[Argument] = set()
         arguments_against: Set[Argument] = set()
+        under_cutting_argument: List[Rule]
         # `negated` is `Not(p)`, while avoiding a double negation.
         negated = p.children[0] if isinstance(p, Not) else Not(p)
         for a in self.arguments:
@@ -155,6 +157,7 @@ class Node:
                     arguments_for.add(a)
                 elif to_proposition(a) == negated:
                     arguments_against.add(a)
+
         return arguments_for, arguments_against
 
     def add(self, arguments: Set[Argument]):
