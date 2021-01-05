@@ -9,8 +9,8 @@ logic_grammar = r"""
     unary   : not exp
     binary  : exp (implies | implied | equiv) exp
     nary    : (exp (and exp)+) | (exp (or exp)+)
-    true    : "t"i | "1" | "true"i | "yes"i
-    false   : "f"i | "0" | "false"i | "no"i
+    true    : "1" | "true"i | "yes"i
+    false   : "0" | "false"i | "no"i
     variable: /[a-zA-Zα-ωΑ-Ω_]+/
     not     : "¬" | "not"i | "neg"i | "~" | "-" | "!"
     and     : "∧" | "and"i | "&"~1..2 | "^" | ","
