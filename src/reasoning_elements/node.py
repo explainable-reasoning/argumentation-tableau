@@ -6,7 +6,7 @@ from reasoning_elements.test import *
 import itertools
 
 """
-This file includes much of the logic for the defeasible tableau. 
+This file includes much of the logic for the defeasible tableau.
 Note that the propositional tableau currently uses its own Node structure (found inside `propositional_tableau.py`).
 """
 
@@ -22,7 +22,7 @@ class Node:
 
     def __str__(self, indent: str = '', parentArguments: Set[Argument] = set()):
         """
-        Does some fancy recursive indented printing. 
+        Does some fancy recursive indented printing.
         See `__str__` in `propositional_tableau.py` for an explanation how it works.
         """
         return (indent
@@ -33,13 +33,13 @@ class Node:
 
     def expand(self):
         """
-        If there are no child nodes, tries to create child nodes. 
+        If there are no child nodes, tries to create child nodes.
         Two things will be tried:
             1. It tries to find an inconsistency between any two arguments in the node.
                (This is the last semantic tableau rule, and the only one involving multiple arguments.)
-            2. If there are no inconsistencies, just apply the normal semantic tableau rule 
+            2. If there are no inconsistencies, just apply the normal semantic tableau rule
                to the first decomposable argument in the node.
-        Either of these two operations will create a child node. 
+        Either of these two operations will create a child node.
             3. These child nodes (or the already existing child nodes) will also be expanded subsequently.
         """
         if len(self.children) == 0:
@@ -103,7 +103,7 @@ class Node:
         Return all arguments for an inconsistency in the node or in any child node.
         We do this by considering the inconsistencies in the leaf nodes and then merging them together
         in an intricate way on our way back up to the node.
-        At each step, we eliminate incosistencies where there are multiple tests in the support, 
+        At each step, we eliminate incosistencies where there are multiple tests in the support,
         because we won't be able to convert hese inconsistencies into useful constructive arguments later.
         Inconsistencies are arguments with `F()` ("false", or ⟘) in their support.
         """
@@ -164,7 +164,7 @@ class Node:
         for child in self.children:
             child.add(arguments)
 
-    def unknown_facts(self) -> Set[FrozenSet[str]]:
+    def get_undecided_propositions(self) -> Set[FrozenSet[str]]:
         if len(self.children) == 0:
             conclusions: Set[Proposition] = {
                 to_proposition(a) for a in self.arguments}
@@ -175,7 +175,7 @@ class Node:
             else:
                 return {frozenset()}
         else:
-            branches = [child.unknown_facts()for child in self.children]
+            branches = [child.get_undecided_propositions()for child in self.children]
             merged_branches = list(itertools.chain(*branches))
             return {b for b in merged_branches if len(b) > 0}
 

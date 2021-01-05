@@ -60,7 +60,7 @@ def test_simple_nondefeasible_tautology():
 
 def test_simple_nondefeasible_contradiction():
     """
-    The tableau does not find a counterargument to a contradiction. 
+    The tableau does not find a counterargument to a contradiction.
     TODO Is this desired behaviour?
     """
     tableau = Tableau(question=parse('¬True'))
@@ -358,7 +358,7 @@ def test_unknown_information():
             parse('a -> b')
         ]
     )
-    assert tableau.unknown_facts() == {
+    assert tableau.get_undecided_propositions() == {
         frozenset({'a', 'b'})
     }
 
@@ -368,7 +368,7 @@ def test_unknown_information():
             parse('(a and b) -> c')
         ]
     )
-    assert tableau.unknown_facts() == {
+    assert tableau.get_undecided_propositions() == {
         frozenset({'a', 'c'}),
         frozenset({'b', 'c'})
     }
@@ -379,7 +379,7 @@ def test_unknown_information():
             parse('(a or b) -> c')
         ]
     )
-    assert tableau.unknown_facts() == {
+    assert tableau.get_undecided_propositions() == {
         frozenset({'a', 'b', 'c'})
     }
 
@@ -389,7 +389,7 @@ def test_unknown_information():
             parse('((a or b) and c) -> d')
         ]
     )
-    assert tableau.unknown_facts() == {
+    assert tableau.get_undecided_propositions() == {
         frozenset({'a', 'b', 'd'}),
         frozenset({'c', 'd'})
     }
@@ -401,7 +401,7 @@ def test_unknown_information():
             parse('e -> f')
         ]
     )
-    assert tableau.unknown_facts() == {
+    assert tableau.get_undecided_propositions() == {
         frozenset({'a', 'b', 'e', 'd'}),
         frozenset({'a', 'b', 'f', 'd'}),
         frozenset({'c', 'e', 'd'}),
@@ -415,7 +415,7 @@ def test_unknown_information():
             parse('x -> ((a and b) and c)')
         ]
     )
-    assert tableau.unknown_facts() == {
+    assert tableau.get_undecided_propositions() == {
         frozenset({'a', 'b', 'x', 'd'}),
         frozenset({'c', 'x', 'd'})
     }

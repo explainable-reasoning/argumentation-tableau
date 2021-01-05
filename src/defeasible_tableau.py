@@ -68,13 +68,13 @@ class Tableau:
             # TODO Maybe rather explicitly look if branches close.
             return 'known', (sorted(list(pro)), sorted(list(contra)))
         else:
-            return 'unknown', self.root.unknown_facts()
+            return 'unknown', self.root.get_undecided_propositions()
 
     def transform_arguments(self, inconsistencies: Set[Argument]) -> Set[Argument]:
         """
         This takes arguments for an inconsistency such as:
             ({¬a?, b, ¬c}, False)
-        If the test is about the final conclusion, 
+        If the test is about the final conclusion,
         then it will create a constructive argument:
             ({b, ¬c}, a)                (1.)
         If the test is about an antecedence of a rule
