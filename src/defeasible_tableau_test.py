@@ -348,3 +348,75 @@ def test_law_example_2():
         '({{Employed}, Employed ~> CanMakeRequestForChange)} CanMakeRequestForChange ~> LEGAL_RequestedChangeWorkingHours)'
     ]
     assert str_list(contra) == []
+
+# Information from open branches
+
+
+def test_unknown_information():
+    tableau = Tableau(
+        question=parse('b'),
+        initial_information=[
+            parse('a -> b')
+        ]
+    )
+    assert tableau.unknown_facts() == {
+        frozenset({'a', 'b'})
+    }
+
+    tableau = Tableau(
+        question=parse('c'),
+        initial_information=[
+            parse('(a and b) -> c')
+        ]
+    )
+    assert tableau.unknown_facts() == {
+        frozenset({'a', 'c'}),
+        frozenset({'b', 'c'})
+    }
+
+    tableau = Tableau(
+        question=parse('c'),
+        initial_information=[
+            parse('(a or b) -> c')
+        ]
+    )
+    assert tableau.unknown_facts() == {
+        frozenset({'a', 'b', 'c'})
+    }
+
+    tableau = Tableau(
+        question=parse('d'),
+        initial_information=[
+            parse('((a or b) and c) -> d')
+        ]
+    )
+    assert tableau.unknown_facts() == {
+        frozenset({'a', 'b', 'd'}),
+        frozenset({'c', 'd'})
+    }
+
+    tableau = Tableau(
+        question=parse('d'),
+        initial_information=[
+            parse('((a or b) and c) -> d'),
+            parse('e -> f')
+        ]
+    )
+    assert tableau.unknown_facts() == {
+        frozenset({'a', 'b', 'e', 'd'}),
+        frozenset({'a', 'b', 'f', 'd'}),
+        frozenset({'c', 'e', 'd'}),
+        frozenset({'c', 'f', 'd'})
+    }
+
+    tableau = Tableau(
+        question=parse('d'),
+        initial_information=[
+            parse('((a or b) and c) -> d'),
+            parse('x -> ((a and b) and c)')
+        ]
+    )
+    assert tableau.unknown_facts() == {
+        frozenset({'a', 'b', 'x', 'd'}),
+        frozenset({'c', 'x', 'd'})
+    }

@@ -29,6 +29,7 @@ class Tableau:
             | {Argument(set([Test(Not(rule.antecedence))]),
                         Not(rule.antecedence)) for rule in rules}
         )
+        self.initial_information = initial_information
         self.rules = rules
         self.question = question
 
@@ -63,6 +64,10 @@ class Tableau:
         pro, contra = self.root.arguments_for_and_against(
             self.question)
         return sorted(list(pro)), sorted(list(contra))
+
+    def unknown_facts(self) -> Set[FrozenSet[str]]:
+        self.root.expand()
+        return self.root.unknown_facts()
 
     def transform_arguments(self, inconsistencies: Set[Argument]) -> Set[Argument]:
         """

@@ -37,10 +37,19 @@ class Proposition:
         for row in self.truthtable():
             print(row)
 
-    def is_decomposable(self):
+    def is_decomposable(self) -> bool:
         return isinstance(self, ComplexProposition) \
             and (not isinstance(self, Not)
                  or isinstance(self.children[0], ComplexProposition))
+
+    def negate(self) -> 'Proposition':
+        """
+        `negate(p)` is `Not(p)`, while avoiding a double negation.
+        """
+        return self.children[0] if isinstance(self, Not) else Not(self)
+
+    def strip_negation(self) -> 'Proposition':
+        return self.children[0] if isinstance(self, Not) else self
 
     def __eq__(self, other):
         return str(self) == str(other)

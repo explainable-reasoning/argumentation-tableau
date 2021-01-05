@@ -3,6 +3,7 @@ from reasoning_elements.proposition import *
 from reasoning_elements.rule import *
 from reasoning_elements.argument import *
 from reasoning_elements.test import *
+import itertools
 
 """
 This file includes much of the logic for the defeasible tableau. 
@@ -146,14 +147,12 @@ class Node:
         """
         arguments_for: Set[Argument] = set()
         arguments_against: Set[Argument] = set()
-        # `negated` is `Not(p)`, while avoiding a double negation.
-        negated = p.children[0] if isinstance(p, Not) else Not(p)
         for a in self.arguments:
             tests = {p for p in a.support if isinstance(p, Test)}
             if len(tests) == 0:
                 if to_proposition(a) == p:
                     arguments_for.add(a)
-                elif to_proposition(a) == negated:
+                elif to_proposition(a) == p.negate():
                     arguments_against.add(a)
         return arguments_for, arguments_against
 
@@ -165,15 +164,29 @@ class Node:
         for child in self.children:
             child.add(arguments)
 
+    def unknown_facts(self) -> Set[FrozenSet[str]]:
+        if len(self.children) == 0:
+            conclusions: Set[Proposition] = {
+                to_proposition(a) for a in self.arguments}
+            # So we are at a leaf node.
+            if not F() in conclusions:
+                # So we are in an open branch, where there is no argument for an inconsistency (`F()`).
+                return {frozenset({str(c.strip_negation()) for c in conclusions})}
+            else:
+                return {frozenset()}
+        else:
+            branches = [child.unknown_facts()for child in self.children]
+            merged_branches = list(itertools.chain(*branches))
+            return {b for b in merged_branches if len(b) > 0}
 
-def to_proposition(a: Union[Argument, Test, Proposition]) -> Proposition:
+
+def to_proposition(a: Union[Argument, Test, Rule, Proposition]) -> Proposition:
     if isinstance(a, Test):
         return a.content
+    elif isinstance(a, Rule):
+        return a.consequence
     elif isinstance(a, Argument):
-        if isinstance(a.conclusion, Rule):
-            return a.conclusion.consequence
-        else:
-            return a.conclusion
+        return to_proposition(a.conclusion)
     else:
         return a
 
