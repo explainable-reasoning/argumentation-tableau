@@ -33,7 +33,7 @@ class Tableau:
         self.rules = rules
         self.question = question
 
-    def evaluate(self) -> Tuple[List[Argument], List[Argument]]:
+    def evaluate(self) -> Tuple[str, Union[Set[FrozenSet[str]], Tuple[List[Argument], List[Argument]]]]:
         """
         The main loop. It performs the following steps:
             1. Expand the tableau as far as possible.
@@ -63,11 +63,12 @@ class Tableau:
                 break  # 5
         pro, contra = self.root.arguments_for_and_against(
             self.question)
-        return sorted(list(pro)), sorted(list(contra))
-
-    def unknown_facts(self) -> Set[FrozenSet[str]]:
-        self.root.expand()
-        return self.root.unknown_facts()
+        if len(pro) > 0 or len(contra) > 0:
+            # TODO Is this a good if-condition? Don't know.
+            # TODO Maybe rather explicitly look if branches close.
+            return 'known', (sorted(list(pro)), sorted(list(contra)))
+        else:
+            return 'unknown', self.root.unknown_facts()
 
     def transform_arguments(self, inconsistencies: Set[Argument]) -> Set[Argument]:
         """

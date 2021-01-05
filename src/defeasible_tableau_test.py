@@ -22,7 +22,7 @@ def test_simple_nondefeasible_proposition():
         question=parse('a'),
         initial_information=[parse('a')]
     )
-    pro, contra = tableau.evaluate()
+    _, (pro, contra) = tableau.evaluate()
     assert str_list(pro) == ['({a}, a)']
     assert str_list(contra) == []
 
@@ -30,7 +30,7 @@ def test_simple_nondefeasible_proposition():
         question=parse('a'),
         initial_information=[parse('¬a')]
     )
-    pro, contra = tableau.evaluate()
+    _, (pro, contra) = tableau.evaluate()
     assert str_list(pro) == []
     assert str_list(contra) == ['({¬a}, ¬a)']
 
@@ -38,7 +38,7 @@ def test_simple_nondefeasible_proposition():
         question=parse('¬a'),
         initial_information=[parse('a')]
     )
-    pro, contra = tableau.evaluate()
+    _, (pro, contra) = tableau.evaluate()
     assert str_list(pro) == []
     assert str_list(contra) == ['({a}, a)']
 
@@ -46,14 +46,14 @@ def test_simple_nondefeasible_proposition():
         question=parse('¬a'),
         initial_information=[parse('¬a')],
     )
-    pro, contra = tableau.evaluate()
+    _, (pro, contra) = tableau.evaluate()
     assert str_list(pro) == ['({¬a}, ¬a)']
     assert str_list(contra) == []
 
 
 def test_simple_nondefeasible_tautology():
     tableau = Tableau(question=parse('True'))
-    pro, contra = tableau.evaluate()
+    _, (pro, contra) = tableau.evaluate()
     assert str_list(pro) == ['({}, True)']
     assert str_list(contra) == []
 
@@ -64,9 +64,8 @@ def test_simple_nondefeasible_contradiction():
     TODO Is this desired behaviour?
     """
     tableau = Tableau(question=parse('¬True'))
-    pro, contra = tableau.evaluate()
-    assert str_list(pro) == []
-    assert str_list(contra) == []
+    result, _ = tableau.evaluate()
+    assert result == 'unknown'
 
 
 def test_complex_nondefeasible_proposition():
@@ -76,7 +75,7 @@ def test_complex_nondefeasible_proposition():
     tableau = Tableau(
         question=parse('(p ∨ (q ∧ r)) → ((p ∨ q) ∧ (p ∨ r))')
     )
-    pro, contra = tableau.evaluate()
+    _, (pro, contra) = tableau.evaluate()
     assert str_list(pro) == [
         '({}, (p ∨ (q ∧ r)) → ((p ∨ q) ∧ (p ∨ r)))'
     ]
@@ -89,7 +88,7 @@ def test_apply_1_rule():
         initial_information=[parse('a')],
         rules=[Rule(parse('a'), parse('b'))]
     )
-    pro, contra = tableau.evaluate()
+    _, (pro, contra) = tableau.evaluate()
     assert str_list(pro) == ['({({a}, a ~> b)}, b)']
     assert str_list(contra) == []
 
@@ -103,7 +102,7 @@ def test_chain_2_rules():
             Rule(parse('b'), parse('c'))
         ]
     )
-    pro, contra = tableau.evaluate()
+    _, (pro, contra) = tableau.evaluate()
     assert str_list(pro) == ['({({({a}, a ~> b)}, b ~> c)}, c)']
     assert str_list(contra) == []
 
@@ -118,7 +117,7 @@ def test_chain_3_rules():
             Rule(parse('c'), parse('d'))
         ]
     )
-    pro, contra = tableau.evaluate()
+    _, (pro, contra) = tableau.evaluate()
     assert str_list(pro) == ['({({({({a}, a ~> b)}, b ~> c)}, c ~> d)}, d)']
     assert str_list(contra) == []
 
@@ -146,7 +145,7 @@ def test_logic_example_1():
         ],
         question=parse('s')
     )
-    pro, contra = tableau.evaluate()
+    _, (pro, contra) = tableau.evaluate()
     assert str_list(pro) == [
         '({({({p ∨ q, ¬q}, p ~> r), p ∨ q, ¬q}, r ~> s)}, s)',  # TODO
         '({({({p ∨ q, ¬q}, p ~> r)}, r ~> s)}, s)'
@@ -178,7 +177,7 @@ def test_logic_example_2():
         ],
         question=parse('q')
     )
-    pro, contra = tableau.evaluate()
+    _, (pro, contra) = tableau.evaluate()
     assert str_list(pro) == [
         '({({p}, p ~> q)}, q)'
     ]
@@ -210,7 +209,7 @@ def test_logic_example_3():
         ],
         question=parse('s'),
     )
-    pro, contra = tableau.evaluate()
+    _, (pro, contra) = tableau.evaluate()
     assert str_list(pro) == [
         'TODO'
     ]
@@ -258,7 +257,7 @@ def test_law_example():
         (2, 0),  # R3 > R1
         (3, 0),  # R4 > R1
     ]
-    pro, contra = tableau.evaluate()
+    _, (pro, contra) = tableau.evaluate()
     assert str_list(pro) == [
         '({({Employed, MilitaryOfficial}, Employed ∧ MilitaryOfficial ~> ¬CanMakeRequestForChange)}, ¬CanMakeRequestForChange)'
     ]
@@ -351,7 +350,7 @@ def test_law_example_2():
 
 # Information from open branches
 
-
+@skip
 def test_unknown_information():
     tableau = Tableau(
         question=parse('b'),
