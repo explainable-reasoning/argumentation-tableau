@@ -16,3 +16,4 @@ __pycache__/
 envs/
 .mypy_cache/
 .pytest_cache/
+.vercel

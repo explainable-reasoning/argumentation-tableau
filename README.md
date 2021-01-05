@@ -49,3 +49,18 @@ There is also a `Test` class (in `reasoning_elements/test.py`), but it is not co
 The tableaux rules are implemented in the `And`, `Or`, `Implies`, `Equiv`, and `Not` data structures. There is always one method `decompose()` that applies the propositional tableaux rule if the proposition is not negated; and `decompose_negated()` if the proposition is negated. These functions return a list of one or two lists (branches!) of one or two derived propositions (sequents) each. The `is_forking()` method says whether a fork will happen when the positive decomposition is applied.
 
 Since a rule can occur in a positions where there are usually propositions (in the conclusion of an argument, to be specific), it can also be decomposed: This means that just its consequence will be decomposed and the antecedence will stay the same. It's not completely clear whether this is the way Nico does it (to be discussed!).
+
+## Server
+
+Vercel is a commercial, yet not utterly evil company providing a service for easily starting a server from Python and other languages, and also for hosting it for free. Vercel uses two directories: 
+
+- `api/` contains the Python files specifying the API. Each file `api/somefile.py` will make its API available via `https://localhost:3000/api/somefile` when the server is running.
+- `public` contains the HTML files etc. that make up the website which accesses the API. They are served _statically_, that is, just as they are and without any further processing. A file `public/somefile.html` will be available via `https://localhost:3000/somefile.html` when the server is running.
+
+For running the server, [install the Vercel CLI](https://vercel.com/download). (For this, you may first need to install one of the Node JS package managers, either _npm_ or _yarn_.)
+
+- `vercel dev` for running the server locally
+
+Vercel does not work with poetry but requires a specification of the dependencies in the `requirements.txt` format by pip. This can be exported from poetry as follows; the command needs only be run when some dependencies have changed:
+
+- `poetry export -f requirements.txt --output requirements.txt`
