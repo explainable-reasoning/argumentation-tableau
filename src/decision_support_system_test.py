@@ -30,4 +30,38 @@ def test_example_one():
     #print(str_list(pro))
     #assert
 
+def test_defeasible_rules():
+    tableau = Tableau(
+        question=parse('f'),
+        initial_information=[],
+        rules=[
+            Rule(
+                parse('a or b'),
+                parse('c')
+            ),
+            Rule(
+                parse('c'),
+                parse('f')
+            ),
+            Rule(
+                parse('x'),
+                parse('¬f')
+            ),
+            Rule(
+                parse('y'),
+                parse('z')
+            )
+        ]
+    )
+    preference = [
+        (2, 1)
+    ]
+
+
+def read_file(filename):
+    with open(filename, 'r') as reader:
+        for line in reader:
+            print(line)
+
+#read_file('example.txt')
 
