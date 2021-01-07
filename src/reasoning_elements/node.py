@@ -171,7 +171,7 @@ class Node:
             # So we are at a leaf node.
             if not F() in conclusions:
                 # So we are in an open branch, where there is no argument for an inconsistency (`F()`).
-                return {frozenset({str(c.strip_negation()) for c in conclusions})}
+                return {frozenset({c.strip_negation() for c in conclusions})}
             else:
                 return {frozenset()}
         else:
