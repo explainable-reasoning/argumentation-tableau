@@ -66,7 +66,7 @@ class DecisionSupportSystem:
             self.initial_information.add(test)
         return
 
-    def process_results(pro_arguments, counter_arguments):
+    def process_results(self, pro_arguments, counter_arguments):
         for pro_argument in pro_arguments:
             print(pro_argument)
         for counter_argument in counter_arguments:
