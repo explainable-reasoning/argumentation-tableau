@@ -419,3 +419,42 @@ def test_unknown_information():
         frozenset({'a', 'b', 'x', 'd'}),
         frozenset({'c', 'x', 'd'})
     }
+
+
+##British Nationality Act
+def test_british_nationality_act():
+    tableau = Tableau(
+        question=
+        initial_information=[
+
+        ],
+        rules =[
+            #Section 1.1
+            Rule(
+                parse('BornInUK & BornAfterCommencement & PartentBritishCitizen'),
+                parse('BritishCitizen')
+            ),
+            #Section 1.2
+            Rule(
+                parse('FoundAsNewbornInUK & FoundAfterCommencement & ¬KnownToBeBornInNotUK & ¬ParentKnownNotBritish'),
+                parse('BritishCitizen')
+            )
+            #Section 1.3
+            Rule(
+                parse('BornInUK & IsMinor & EntitledToBeRegistered & ApplicationToBeRegistered'),
+                parse('BritishCitizen')
+            )
+            Rule(
+                parse('ParentBritishCitizen'),
+                parse('EntitledToBeRegistered')
+            )
+            Rule(
+                parse('ParentSettledInUnitedKingdom'),
+                parse('EntitledToBeRegistered')
+            )
+            Rule(
+                parse('ParentInArmedForces'),
+                parse('EntitledToBeRegistered')
+            )
+        ]
+    )
