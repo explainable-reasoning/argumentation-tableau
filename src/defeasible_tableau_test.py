@@ -419,3 +419,20 @@ def test_unknown_information():
         frozenset({'a', 'b', 'x', 'd'}),
         frozenset({'c', 'x', 'd'})
     }
+                parse('BornInUK & IsMinor & EntitledToBeRegistered & ApplicationToBeRegistered'),
+                parse('BritishCitizen')
+            )
+            Rule(
+                parse('ParentBritishCitizen'),
+                parse('EntitledToBeRegistered')
+            )
+            Rule(
+                parse('ParentSettledInUnitedKingdom'),
+                parse('EntitledToBeRegistered')
+            )
+            Rule(
+                parse('ParentInArmedForces'),
+                parse('EntitledToBeRegistered')
+            )
+        ]
+    )
