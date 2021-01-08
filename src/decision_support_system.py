@@ -10,7 +10,7 @@ class DecisionSupportSystem:
     """
 
     ### preliminary in file config
-    io = UserInput
+    io = UserInput()
     ###
 
     def __init__(self,
@@ -43,7 +43,7 @@ class DecisionSupportSystem:
                 pro_arguments, counter_arguments = return_values[0], return_values[1]
                 done = True
             elif status == 'unknown':
-                self.initial_information.append(self.get_promising_tests(return_values))
+                self.ask_question(self.get_promising_tests(return_values))
 
         self.process_results(pro_arguments, counter_arguments)
 
@@ -63,7 +63,7 @@ class DecisionSupportSystem:
     def ask_question(self, test: Proposition):
         if not self.io.ask(test):
             test = test.negate()
-            self.initial_information.add(test)
+        self.initial_information.append(test)
         return
 
     def process_results(self, pro_arguments, counter_arguments):

@@ -11,9 +11,10 @@ def test_example_one():
     decisionSupportSystem = DecisionSupportSystem(
         question=parse('d'),
         initial_information=[parse('((a or b) and c) -> d')])
-    pro, contra = decisionSupportSystem.run()
-    print(str_list(pro), "\r\n")
-    print(str_list(contra), "\r\n")
+    decisionSupportSystem.run()
+    #pro, contra = decisionSupportSystem.run()
+    #print(str_list(pro), "\r\n")
+    #print(str_list(contra), "\r\n")
 
     #assert
 
