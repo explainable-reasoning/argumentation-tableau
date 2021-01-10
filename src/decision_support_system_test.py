@@ -64,16 +64,12 @@ def test_defeasible_rules():
     ]
 
 
-def read_file(filename):
-    with open(filename, 'r') as reader:
-        for line in reader:
-            print(line)
-
 #read_file('example.txt')
 
 ### Test Code
 def main():
     test_example_one()
+    return
     #test_example_two()
     #test_example_three()
 

@@ -1,0 +1,31 @@
+{
+    "British National Act": {
+        "rules": {
+            "1.1": {
+                "antecedence": "BornInUK & BornAfterCommencement & PartentBritishCitizen",
+                "consequence": "BritishCitizen"
+            },
+            "1.2": {
+                "antecedence": "FoundAsNewbornInUK & FoundAfterCommencement & ¬KnownToBeBornInNotUK & ¬ParentKnownNotBritish",
+                "consequence": "BritishCitizen"
+            },
+            "1.3a": {
+                "antecedence": "BornInUK & IsMinor & EntitledToBeRegistered & ApplicationToBeRegistered",
+                "consequence": "BritishCitizen"
+            },
+            "1.3b": {
+                "antecedence": "ParentBritishCitizen",
+                "consequence": "EntitledToBeRegistered"
+            },
+            "1.3c": {
+                "antecedence": "ParentSettledInUnitedKingdom",
+                "consequence": "EntitledToBeRegistered"
+            },
+            "1.3d": {
+                "antecedence": "ParentInArmedForces",
+                "consequence": "EntitledToBeRegistered"
+            }
+        },
+        "facts": []
+    }
+}
