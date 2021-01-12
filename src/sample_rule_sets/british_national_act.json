@@ -24,6 +24,34 @@
             "1.3d": {
                 "antecedence": "ParentInArmedForces",
                 "consequence": "EntitledToBeRegistered"
+            },
+            "1.4": {
+                "antecedence": "BornInUK & AtLeast10YearsOld & ForFirst10YearsAbsentDaysLessThan90",
+                "consequence": "EntitledToBeRegistered"
+            },
+            "1.5a": {
+                "antecedence": "AdoptionAuthorizedByBritishCourt & SectionFiveRequirementsMet",
+                "consequence": "BritishCitizen"
+            },
+            "1.5b": {
+                "antecendence": "AdoptedUnderConventionAdoption & SectionFiveRequirementsMet",
+                "consequence": "BritishCitizen"
+            },
+            "1.5c": {
+                "antecedence": "AtLeastOneAdopterBritishCitizen",
+                "consequence": "SectionFiveRequirementsMet"
+            },
+            "1.5d": {
+                "antecedence": "AllAdoptersHabituallyResidentInUK",
+                "consequence": "SectionFiveRequirementsMet"
+            },
+            "2.1a":{
+                "antecedence": "BornOutsideUK & ParentIsBritishCitizenNotByDescent",
+                "consequence": "BritishCitizen"
+            },
+            "2.1b":{
+                "antecedence": "BornOutsideUK & ParentIsBritishCitizen & ServingOutsideOfUK",
+                "consequence": "BritishCitizen"
             }
         },
         "facts": []
