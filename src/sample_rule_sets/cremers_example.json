@@ -1,0 +1,66 @@
+{
+    "Thomas Cremers Example": {
+        "rules": {
+            "1": {
+                "antecedence": "EmployedAt",
+                "concequence": "OPPOWER_MakeRequest"
+            },
+            "2": {
+                "antecedence": "EmployedAt & LessThanTenEmployees",
+                "concequence": "¬OPPOWER_MakeRequest"
+            },
+            "3": {
+                "antecedence": "EmployedAt & ReacedOldAgeInsuranceAge",
+                "concequence": "¬OPPOWER_MakeRequest"
+            },
+            "4": {
+                "antecedence": "EmployedAt & MilitaryOfficial",
+                "concequence": "¬OPPOWER_MakeRequest"
+            },
+            "5": {
+                "antecedence": "EmployedAt & UnforseenCircumstances",
+                "concequence": "OPPOWER_MakeRequest"
+            },
+            "6": {
+                "antecedence": "OPPOWER_MakeRequest & DOES_RequestChangeWorkingHours",
+                "concequence": "LEGAL_RequestedChangeWorkingHours"
+            },
+            "7": {
+                "antecedence": "OPPOWER_MakeRequest & DOES_RequestChangeWorkingHours & ¬RequestSubmittedInWriting",
+                "concequence": "¬LEGAL_RequestedChangeWorkingHours"
+            },
+            "8": {
+                "antecedence": "OPPOWER_MakeRequest & DOES_RequestChangeWorkingHours & ¬TimeSinceLastRequestMinOneYear",
+                "concequence": "¬LEGAL_RequestedChangeWorkingHours"
+            },
+            "9": {
+                "antecedence": "OPPOWER_MakeRequest & DOES_RequestChangeWorkingHours & ¬WorkedForAtleast26Weeks",
+                "concequence": "¬LEGAL_RequestedChangeWorkingHours"
+            },
+            "10": {
+                "antecedence": "OPPOWER_MakeRequest & DOES_RequestChangeWorkingHours & UnforseenCircumtances",
+                "concequence": "LEGAL_RequestedChangeWorkingHours"
+            },
+            "11": {
+                "antecedence": "OPPOWER_MakeRequest & DOES_RequestChangeWorkingTimes",
+                "concequence": "LEGAL_RequestedChangeWorkingTimes"
+            },
+            "12": {
+                "antecedence": "OPPOWER_MakeRequest & DOES_RequestChangeWorkingTimes & ¬RequestSubmittedInWriting",
+                "concequence": "¬LEGAL_RequestedChangeWorkingTime"
+            },
+            "13": {
+                "antecedence": "OPPOWER_MakeRequest & DOES_RequestChangeWorkingTimes & ¬TimeSinceLastRequestMinOneYear",
+                "concequence": "¬LEGAL_RequestedChangeWorkingTimes"
+            },
+            "14": {
+                "antecedence": "OPPOWER_MakeRequest & DOES_RequestChangeWorkingTimes & ¬WorkedForAtleast26Weeks",
+                "concequence": "¬LEGAL_RequestedChangeWorkingTimes"
+            },
+            "15": {
+                "antecedence": "OPPOWER_MakeRequest & DOES_RequestChangeWorkingTimes & UnforeseenCircumstances",
+                "concequence": "LEGAL_RequestedChangeWorkingTimes"
+            }
+        }
+    }
+}
