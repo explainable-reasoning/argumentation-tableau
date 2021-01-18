@@ -1,5 +1,6 @@
 from propositional_parser import toProposition
 from reasoning_elements.rule import Rule
+import re
 import json
 
 
@@ -16,7 +17,7 @@ class Configuration:
         rules = []
         facts = []
 
-        with open(filename, encoding='utf-32') as json_file:
+        with open(filename, encoding='utf-8') as json_file:
             data = json.load(json_file)
 
             for set in data:
@@ -28,7 +29,7 @@ class Configuration:
                 test1 = rules_data["1.1"]["consequence"]
                 test2 = Rule(toProposition(test), toProposition(test1))
 
-                rules = [Rule(toProposition(rules_data[rule]["antecedence"].encode('latin1').decode()), toProposition(rules_data[rule]["consequence"].encode('latin1').decode())) for rule in rules_data]
+                rules = [Rule(toProposition(rules_data[rule]["antecedence"].encode('utf-8').decode('utf-8')), toProposition(rules_data[rule]["consequence"].encode('utf-8').decode('utf-8'))) for rule in rules_data]
 
                 for fact_data in facts_data:
                     facts.append(toProposition(fact_data))

@@ -6,7 +6,7 @@
                 "consequence": "BritishCitizen"
             },
             "1.2": {
-                "antecedence": "FoundAsNewbornInUK & FoundAfterCommencement & ¬KnownToBeBornInNotUK & ¬ParentKnownNotBritish",
+                "antecedence": "FoundAsNewbornInUK & FoundAfterCommencement & (¬KnownToBeBornInNotUK) & (¬ParentKnownNotBritish)",
                 "consequence": "BritishCitizen"
             },
             "1.3a": {
