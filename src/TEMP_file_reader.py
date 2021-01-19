@@ -39,4 +39,5 @@ class Configuration:
         return rules, facts
 
 config = Configuration()
-a, b = config.parse_json("./sample_rule_sets/british_national_act.json")
+# a, b = config.parse_json("./src/sample_rule_sets/british_national_act.json")
+a, b = config.parse_json("./src/sample_rule_sets/cremers_example.json")

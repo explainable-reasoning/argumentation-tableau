@@ -61,6 +61,7 @@
                 "antecedence": "OPPOWER_MakeRequest & DOES_RequestChangeWorkingTimes & UnforeseenCircumstances",
                 "concequence": "LEGAL_RequestedChangeWorkingTimes"
             }
-        }
+        },
+        "facts": []
     }
 }
