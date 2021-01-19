@@ -23,6 +23,7 @@ def test_example_two():
         question=parse('e'),
         initial_information=[parse('((a and b) or (c and d)) -> e')]
     )
+    decisionSupportSystem.run()
     #pro, contra = decisionSupportSystem.run()
     #print(str_list(pro))
     # assert
@@ -32,6 +33,7 @@ def test_example_three():
         question=parse('c'),
         initial_information=[parse('((a and b) or c) -> c')]
     )
+    decisionSupportSystem.run()
     #pro, contra = decisionSupportSystem.run()
     #print(str_list(pro))
     #assert

@@ -217,7 +217,6 @@ def test_logic_example_3():
         'TODO'
     ]
 
-
 # LAW EXAMPLES
 
 def test_law_example():
@@ -420,7 +419,7 @@ def test_unknown_information():
         frozenset({'c', 'x', 'd'})
     }
 
-
+'''
 ##British Nationality Act
 def test_british_nationality_act():
     tableau = Tableau(
@@ -457,4 +456,4 @@ def test_british_nationality_act():
                 parse('EntitledToBeRegistered')
             )
         ]
-    )
+    ) '''

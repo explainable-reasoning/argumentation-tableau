@@ -51,11 +51,10 @@ class DecisionSupportSystem:
 
     def get_promising_tests(self, tests):
         test_counter = {}
-        for branch_tests in tests:
-            for test in branch_tests:
-                if test not in test_counter.keys():
-                    test_counter[test] = 0
-                test_counter[test] = test_counter[test] + 1
+        for test in tests:
+            if test not in test_counter.keys():
+                test_counter[test] = 0
+            test_counter[test] = test_counter[test] + 1
 
         ordered_by_frequency = {k: v for k, v in sorted(test_counter.items(), key=lambda item: item[1])}
         return list(ordered_by_frequency.keys())[0]
