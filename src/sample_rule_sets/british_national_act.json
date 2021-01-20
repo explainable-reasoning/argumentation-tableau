@@ -26,7 +26,7 @@
                 "consequence": "EntitledToBeRegistered"
             },
             "1.4": {
-                "antecedence": "BornInUK & AtLeast10YearsOld & ForFirst10YearsAbsentDaysLessThan90",
+                "antecedence": "BornInUK & AtLeastTenYearsOld & ForFirstTenYearsAbsentDaysLessThanNinety",
                 "consequence": "EntitledToBeRegistered"
             },
             "1.5a": {
@@ -34,7 +34,7 @@
                 "consequence": "BritishCitizen"
             },
             "1.5b": {
-                "antecendence": "AdoptedUnderConventionAdoption & SectionFiveRequirementsMet",
+                "antecedence": "AdoptedUnderConventionAdoption & SectionFiveRequirementsMet",
                 "consequence": "BritishCitizen"
             },
             "1.5c": {

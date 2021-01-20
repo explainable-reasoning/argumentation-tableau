@@ -25,10 +25,6 @@ class Configuration:
                 rules_data = data[set]["rules"]
                 facts_data = data[set]["facts"]
 
-                test = rules_data["1.1"]["antecedence"]
-                test1 = rules_data["1.1"]["consequence"]
-                test2 = Rule(toProposition(test), toProposition(test1))
-
                 rules = [Rule(toProposition(rules_data[rule]["antecedence"].encode('utf-8').decode('utf-8')), toProposition(rules_data[rule]["consequence"].encode('utf-8').decode('utf-8'))) for rule in rules_data]
 
                 for fact_data in facts_data:
@@ -39,5 +35,5 @@ class Configuration:
         return rules, facts
 
 config = Configuration()
-# a, b = config.parse_json("./src/sample_rule_sets/british_national_act.json")
-a, b = config.parse_json("./src/sample_rule_sets/cremers_example.json")
+a, b = config.parse_json("./src/sample_rule_sets/british_national_act.json")
+# a, b = config.parse_json("./src/sample_rule_sets/cremers_example.json")
