@@ -1,8 +1,10 @@
-from defeasible_tableau import *
-from reasoning_elements import *
-from propositional_parser import *
 from decision_support_system import DecisionSupportSystem
-import pytest
+from defeasible_tableau import *
+from propositional_parser import *
+from reasoning_elements import *
+
+from TEMP_file_reader import Configuration
+
 
 def str_list(l):
     return [str(a) for a in l]
@@ -79,12 +81,13 @@ def test_logic_example_2():
 
 ### Test Code
 def main():
-    test_logic_example_2()
+    #test_logic_example_2()
     #test_example_one()
     #return
     #test_example_two()
     #test_example_three()
     #test_law_example()
+    test_BNA()
 
 
 
@@ -115,6 +118,26 @@ def test_law_example():
             )
         ],
         question=parse('¬CanMakeRequestForChange')
+    )
+    decisionSupportSystem.run()
+
+def test_BNA():
+    config = Configuration()
+    a, b = config.parse_json("./sample_rule_sets/british_national_act.json")
+    #rules = set(a)
+    #initial = set(b)
+    rules = set()
+    initial = set()
+    for i in a:
+        rules.add(i)
+    for j in b:
+        initial.add(j)
+    #print(type(set(a)))
+    #print(type(set(b)))
+    decisionSupportSystem = DecisionSupportSystem(
+        initial_information=[],
+        rules=rules,
+        question=[]
     )
     decisionSupportSystem.run()
 
