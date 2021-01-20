@@ -86,8 +86,9 @@ def main():
     #return
     #test_example_two()
     #test_example_three()
-    #test_law_example()
-    test_BNA()
+    test_law_example()
+    #test_BNA()
+    #test_cremers()
 
 
 
@@ -137,8 +138,21 @@ def test_BNA():
     decisionSupportSystem = DecisionSupportSystem(
         initial_information=[],
         rules=rules,
-        question=[]
+        question=parse('BritishCitizen')
     )
     decisionSupportSystem.run()
+
+def test_cremers():
+    config = Configuration()
+    a, b = config.parse_json("./sample_rule_sets/cremers_example.json")
+    rules = set(a)
+    initial = set(b)
+    decisionSupportSystem = DecisionSupportSystem(
+        initial_information=[],
+        rules=rules,
+        question=parse('LEGAL_RequestedChangeWorkingHours')
+    )
+    decisionSupportSystem.run()
+
 
 main()
