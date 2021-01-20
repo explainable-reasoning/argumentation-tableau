@@ -118,7 +118,7 @@ class Tableau:
     @staticmethod
     def rule_defeasible_level(Inital_rule:Set[Rule], preference: Set[tuple]):
         """
-                This inital the defeasible level of defeasible rule by the preference.
+                This inital the defeasibility of defeasible rule by the preference.
                 the tuple(1,0) means rules[1] covers rules[0]
         """
         copy_perfence = set(preference.copy())
@@ -142,6 +142,10 @@ class Tableau:
 
 
     def underCutting_Argument(self, argument: Argument):
+        """
+            This inital the defeasible level of defeasible rule by the preference.
+            the tuple(1,0) means rules[1] covers rules[0]
+        """
         search_list = []
         for spt in argument.support:
             if isinstance(spt,Argument):
@@ -159,6 +163,20 @@ class Tableau:
                 if isinstance(spt, Argument):
                     search_list.append(spt)
         return underCutting_index, Cutting_argument
+
+    def sort_argument(self, Argument_set: set([Argument])):
+        sorted_Arguments = []
+        for Arg in Argument_set:
+            underCutting_index, Cutting_argument = self.underCutting_Argument(Arg)
+            defeasiblility = self.rules[underCutting_index].defeasible_level
+            sorted_Arguments.append((defeasiblility, Arg))
+
+        sorted(sorted_Arguments, key=lambda Tuple: Tuple[1])
+        return sorted_Arguments
+
+
+
+
 
 
 

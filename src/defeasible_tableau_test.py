@@ -368,7 +368,7 @@ def test_law_example_2():
 def test_undercutting_argument():
     """
         Source: Mail by Nico
-        """
+    """
     tableau = Tableau(
         initial_information=[
             parse('p')
@@ -402,3 +402,73 @@ def test_undercutting_argument():
         assert underCutting_index == 2
 
 
+def stay_your_grand_law_original_type():
+    tableau = Tableau(
+        initial_information=[
+            parse('a'),
+            parse('b'),
+            parse('c'),
+            parse('k')
+        ],
+        rules=[
+            Rule(
+                parse('a & b'),
+                parse('k -> d')
+            ),
+            Rule(
+                parse('c'),
+                parse('x')
+            ),
+            Rule(
+                parse('d'),
+                parse('¬x')
+            )
+        ],
+        question=parse('x'),
+        preference=[
+            (0, 1),  # R0 > R1
+            (2, 1),  # R2 > R1
+        ]
+
+    )
+    pro, contra = tableau.evaluate()
+    arguments_list = tableau.sort_argument(pro + contra)
+    most_strong_argument = arguments_list[len(arguments_list) - 1]
+    assert most_strong_argument[1] == '({({({a, b}, a ∧ b ~> k → d), k}, d ~> ¬x)}, ¬x)'
+
+
+def stay_your_grand_law():
+    tableau = Tableau(
+        initial_information=[
+            parse('be_threaten'),
+            parse('be_attacked'),
+            parse('kill_person'),
+            parse('believe_will_be_killed')
+        ],
+        rules=[
+            Rule(
+                parse('be_threaten & be_attacked'),
+                parse('believe_will_be_killed -> justifiable_defense')
+            ),
+            Rule(
+                parse('kill_person'),
+                parse('conviction')
+            ),
+            Rule(
+                parse('justifiable_defense'),
+                parse('¬conviction')
+            )
+        ],
+        question=parse('conviction'),
+        preference=[
+            (0, 1),  # R0 > R1
+            (2, 1),  # R2 > R1
+        ]
+
+    )
+    pro, contra = tableau.evaluate()
+    arguments_list = tableau.sort_argument(pro + contra)
+    strongest_argument = arguments_list[len(arguments_list) - 1]
+    assert strongest_argument[1] == '({({({be_attacked, be_threaten}, be_threaten ∧ be_attacked ~> believe_will_be_killed → justifiable_defense), believe_will_be_killed}, justifiable_defense ~> ¬conviction)}, ¬conviction)'
+
+stay_your_grand_law()
