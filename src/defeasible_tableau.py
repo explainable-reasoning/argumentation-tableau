@@ -69,8 +69,8 @@ class Tableau:
             return 'known', (sorted(list(pro)), sorted(list(contra)))
         else:
             return 'unknown', [c for a in self.root.get_undecided_propositions() for c in a
-                                    if str(to_proposition(c).strip_negation()) not in [str(to_proposition(b.conclusion).strip_negation())
-                                    for b in self.root.arguments]]
+                                    if str(to_proposition(c).strip_negation()) not in [str(b.strip_negation())
+                                             for b in self.initial_information] and c.strip_negation() != str(self.question.strip_negation())]
 
     def transform_arguments(self, inconsistencies: Set[Argument]) -> Set[Argument]:
         """

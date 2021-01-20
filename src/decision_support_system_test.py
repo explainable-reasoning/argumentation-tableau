@@ -12,11 +12,6 @@ def test_example_one():
         question=parse('d'),
         initial_information=[parse('((a or b) and c) -> d')])
     decisionSupportSystem.run()
-    #pro, contra = decisionSupportSystem.run()
-    #print(str_list(pro), "\r\n")
-    #print(str_list(contra), "\r\n")
-
-    #assert
 
 def test_example_two():
     decisionSupportSystem = DecisionSupportSystem(
@@ -24,9 +19,6 @@ def test_example_two():
         initial_information=[parse('((a and b) or (c and d)) -> e')]
     )
     decisionSupportSystem.run()
-    #pro, contra = decisionSupportSystem.run()
-    #print(str_list(pro))
-    # assert
 
 def test_example_three():
     decisionSupportSystem = DecisionSupportSystem(
@@ -34,45 +26,96 @@ def test_example_three():
         initial_information=[parse('((a and b) or c) -> c')]
     )
     decisionSupportSystem.run()
-    #pro, contra = decisionSupportSystem.run()
-    #print(str_list(pro))
-    #assert
 
 def test_defeasible_rules():
-    tableau = Tableau(
-        question=parse('f'),
+    decisionSupportSystem = DecisionSupportSystem(
+        question=parse('¬f'),
         initial_information=[],
         rules=[
             Rule(
-                parse('a or b'),
+                parse('(a or b)'),
                 parse('c')
             ),
             Rule(
-                parse('c'),
+                parse('c and x'),
                 parse('f')
             ),
             Rule(
-                parse('x'),
+                parse('x or c'),
                 parse('¬f')
-            ),
-            Rule(
-                parse('y'),
-                parse('z')
             )
         ]
     )
+    decisionSupportSystem.run()
     preference = [
         (2, 1)
     ]
 
-
-#read_file('example.txt')
+def test_logic_example_2():
+    """
+    Source: Mail by Nico
+    """
+    decisionSupportSystem = DecisionSupportSystem(
+        initial_information=[
+            #parse('p')
+        ],
+        rules=[
+            Rule(
+                parse('p'),
+                parse('q')
+            ),
+            Rule(
+                parse('q'),
+                parse('r')
+            ),
+            Rule(
+                parse('r'),
+                parse('¬q')
+            )
+        ],
+        question=parse('q')
+    )
+    decisionSupportSystem.run()
 
 ### Test Code
 def main():
-    test_example_one()
-    return
+    test_logic_example_2()
+    #test_example_one()
+    #return
     #test_example_two()
     #test_example_three()
+    #test_law_example()
+
+
+
+def test_law_example():
+    """
+    Tomas Cremers (2016), Appendix C.1
+    """
+    decisionSupportSystem = DecisionSupportSystem(
+        initial_information=[
+
+        ],
+        rules=[
+            Rule(
+                parse('Employed'),
+                parse('CanMakeRequestForChange')
+            ),
+            Rule(
+                parse('Employed & LessThanTenEmployees'),
+                parse('¬CanMakeRequestForChange')
+            ),
+            Rule(
+                parse('Employed & ReachedOldAgeInsurance'),
+                parse('¬CanMakeRequestForChange')
+            ),
+            Rule(
+                parse('Employed & MilitaryOfficial'),
+                parse('¬CanMakeRequestForChange')
+            )
+        ],
+        question=parse('¬CanMakeRequestForChange')
+    )
+    decisionSupportSystem.run()
 
 main()
