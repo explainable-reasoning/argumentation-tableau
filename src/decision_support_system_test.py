@@ -4,15 +4,23 @@ from propositional_parser import *
 from decision_support_system import DecisionSupportSystem
 import pytest
 
+
 def str_list(l):
     return [str(a) for a in l]
 
+
+skip = pytest.mark.skip
+
+
+@skip
 def test_example_one():
     decisionSupportSystem = DecisionSupportSystem(
         question=parse('d'),
         initial_information=[parse('((a or b) and c) -> d')])
     decisionSupportSystem.run()
 
+
+@skip
 def test_example_two():
     decisionSupportSystem = DecisionSupportSystem(
         question=parse('e'),
@@ -20,6 +28,8 @@ def test_example_two():
     )
     decisionSupportSystem.run()
 
+
+@skip
 def test_example_three():
     decisionSupportSystem = DecisionSupportSystem(
         question=parse('c'),
@@ -27,6 +37,8 @@ def test_example_three():
     )
     decisionSupportSystem.run()
 
+
+@skip
 def test_defeasible_rules():
     decisionSupportSystem = DecisionSupportSystem(
         question=parse('¬f'),
@@ -51,13 +63,15 @@ def test_defeasible_rules():
         (2, 1)
     ]
 
+
+@skip
 def test_logic_example_2():
     """
     Source: Mail by Nico
     """
     decisionSupportSystem = DecisionSupportSystem(
         initial_information=[
-            #parse('p')
+            # parse('p')
         ],
         rules=[
             Rule(
@@ -77,17 +91,8 @@ def test_logic_example_2():
     )
     decisionSupportSystem.run()
 
-### Test Code
-def main():
-    test_logic_example_2()
-    #test_example_one()
-    #return
-    #test_example_two()
-    #test_example_three()
-    #test_law_example()
 
-
-
+@skip
 def test_law_example():
     """
     Tomas Cremers (2016), Appendix C.1
@@ -117,5 +122,3 @@ def test_law_example():
         question=parse('¬CanMakeRequestForChange')
     )
     decisionSupportSystem.run()
-
-main()
