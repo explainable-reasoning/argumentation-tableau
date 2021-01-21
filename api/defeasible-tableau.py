@@ -17,14 +17,17 @@ class handler(BaseHTTPRequestHandler):
         self.send_header('Content-type', 'text/html')
         self.end_headers()
         input = json.loads(body)
+        print(input)
         t = Tableau(
-            question=input['question'],
-            initial_information=[parse(p) for p
-                                 in input['initial_information']],
-            rules=[Rule(parse(a), parse(b)) for (a, b)
-                   in input['rules']] 
+            question=parse(input['question']),
+            initial_information={parse(p) for p
+                                 in input['initial_information']},
+            rules={Rule(parse(a), parse(b)) for (a, b)
+                   in input['rules']}
         )
-        pro, contra = t.evaluate()
-        output = json.dumps([[str(p) for p in pro],
-                            [str(p) for p in contra]])
-        self.wfile.write(output.encode('utf-8'))
+        flag, result = t.evaluate()
+        if flag == 'known':
+            pro, contra = result
+            output = json.dumps([[str(p) for p in pro],
+                                [str(p) for p in contra]])
+            self.wfile.write(output.encode('utf-8')) 
