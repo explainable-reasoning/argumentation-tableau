@@ -68,9 +68,15 @@ class Tableau:
             # TODO Maybe rather explicitly look if branches close.
             return 'known', (sorted(list(pro)), sorted(list(contra)))
         else:
-            return 'unknown', [c for a in self.root.get_undecided_propositions() for c in a
+            undecided = []
+            for a in self.root.get_undecided_propositions():
+                for c in a:
+                    if str(to_proposition(c).strip_negation()) not in [str(b.strip_negation()) for b in self.initial_information] and c.strip_negation() != str(self.question.strip_negation()):
+                        undecided.append(c)
+            return 'unknown' , undecided
+            '''return 'unknown', [c for a in self.root.get_undecided_propositions() for c in a
                                     if str(to_proposition(c).strip_negation()) not in [str(b.strip_negation())
-                                             for b in self.initial_information] and c.strip_negation() != str(self.question.strip_negation())]
+                                             for b in self.initial_information] and c.strip_negation() != str(self.question.strip_negation())]'''
 
     def transform_arguments(self, inconsistencies: Set[Argument]) -> Set[Argument]:
         """
