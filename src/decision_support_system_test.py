@@ -122,3 +122,39 @@ def test_law_example():
         question=parse('¬CanMakeRequestForChange')
     )
     decisionSupportSystem.run()
+
+
+@skip
+def test_BNA():
+    config = Configuration()
+    a, b = config.parse_json("./sample_rule_sets/british_national_act.json")
+    #rules = set(a)
+    #initial = set(b)
+    rules = set()
+    initial = set()
+    for i in a:
+        rules.add(i)
+    for j in b:
+        initial.add(j)
+    # print(type(set(a)))
+    # print(type(set(b)))
+    decisionSupportSystem = DecisionSupportSystem(
+        initial_information=[],
+        rules=rules,
+        question=parse('BritishCitizen')
+    )
+    decisionSupportSystem.run()
+
+
+@skip
+def test_cremers():
+    config = Configuration()
+    a, b = config.parse_json("./sample_rule_sets/cremers_example.json")
+    rules = set(a)
+    initial = set(b)
+    decisionSupportSystem = DecisionSupportSystem(
+        initial_information=[],
+        rules=rules,
+        question=parse('LEGAL_RequestedChangeWorkingHours')
+    )
+    decisionSupportSystem.run()

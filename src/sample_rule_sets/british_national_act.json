@@ -2,7 +2,7 @@
     "British National Act": {
         "rules": {
             "1.1": {
-                "antecedence": "BornInUK & BornAfterCommencement & PartentBritishCitizen",
+                "antecedence": "BornInUK & BornAfterCommencement & ParentBritishCitizen",
                 "consequence": "BritishCitizen"
             },
             "1.2": {
