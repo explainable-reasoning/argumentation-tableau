@@ -123,7 +123,7 @@ def test_law_example():
 
 def test_BNA():
     config = Configuration()
-    a, b = config.parse_json("./sample_rule_sets/british_national_act.json")
+    a, b = config.parse_json("./src/sample_rule_sets/british_national_act.json")
     #rules = set(a)
     #initial = set(b)
     rules = set()
@@ -135,10 +135,35 @@ def test_BNA():
     #print(type(set(a)))
     #print(type(set(b)))
     decisionSupportSystem = DecisionSupportSystem(
-        initial_information=[],
-        rules=rules,
-        question=[]
+        initial_information=initial,
+        rules=rules)
+    decisionSupportSystem.run()
+
+
+def test_presentation():
+    """
+
+    """
+    decisionSupportSystem = DecisionSupportSystem(
+        initial_information=[
+
+        ],
+        rules=[
+            Rule(
+                parse('justifiable_defense'),
+                parse('¬conviction')
+            ),
+            Rule(
+                parse('threaten & attacked'),
+                parse('justifiable_defense')
+            ),
+            Rule(
+                parse('kill_person '),
+                parse('conviction')
+            ),
+        ],
+        question=parse('conviction')
     )
     decisionSupportSystem.run()
 
-main()
+test_presentation()

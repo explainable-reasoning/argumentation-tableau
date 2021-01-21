@@ -3,6 +3,9 @@ from reasoning_elements.proposition import Proposition
 from reasoning_elements.rule import *
 from defeasible_tableau import Tableau
 from i_o.user_input import *
+from i_o.file_reader import Configuration
+from propositional_parser import toProposition
+from reasoning_elements.rule import Rule
 
 class DecisionSupportSystem:
     """
@@ -11,6 +14,9 @@ class DecisionSupportSystem:
 
     ### preliminary in file config
     io = UserInput()
+    config = Configuration(Rule, toProposition)
+    # rules, facts = Configuration.parse_json(<file_path>)
+    # use this to get rules and facts from the JSON serialized format
     ###
 
     def __init__(self,
