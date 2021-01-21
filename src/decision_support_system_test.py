@@ -2,8 +2,10 @@ from decision_support_system import DecisionSupportSystem
 from defeasible_tableau import *
 from propositional_parser import *
 from reasoning_elements import *
+from propositional_parser import toProposition
+from reasoning_elements.rule import Rule
 
-from TEMP_file_reader import Configuration
+from i_o.file_reader import Configuration
 
 
 def str_list(l):
@@ -87,8 +89,9 @@ def main():
     #test_example_two()
     #test_example_three()
     #test_law_example()
-    test_BNA()
-
+    #test_BNA()
+    #test_cremers()
+    test_presentation()
 
 
 def test_law_example():
@@ -122,7 +125,7 @@ def test_law_example():
     decisionSupportSystem.run()
 
 def test_BNA():
-    config = Configuration()
+    config = Configuration(Rule, toProposition)
     a, b = config.parse_json("./src/sample_rule_sets/british_national_act.json")
     #rules = set(a)
     #initial = set(b)
@@ -134,11 +137,23 @@ def test_BNA():
         initial.add(j)
     #print(type(set(a)))
     #print(type(set(b)))
-    decisionSupportSystem = DecisionSupportSystem(
-        initial_information=initial,
-        rules=rules)
+    decisionSupportSystem = DecisionSupportSystem(        initial_information=[],
+        rules=rules,
+        question=parse('BritishCitizen')
+    )
     decisionSupportSystem.run()
 
+def test_cremers():
+    config = Configuration(Rule, toProposition)
+    a, b = config.parse_json("./sample_rule_sets/cremers_example.json")
+    rules = set(a)
+    initial = set(b)
+    decisionSupportSystem = DecisionSupportSystem(
+        initial_information=[],
+        rules=rules,
+        question=parse('LEGAL_RequestedChangeWorkingHours')
+    )
+    decisionSupportSystem.run()
 
 def test_presentation():
     """
@@ -166,4 +181,4 @@ def test_presentation():
     )
     decisionSupportSystem.run()
 
-test_presentation()
+main()
