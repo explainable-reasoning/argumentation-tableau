@@ -3,6 +3,7 @@ from reasoning_elements import *
 from propositional_parser import *
 from decision_support_system import DecisionSupportSystem
 import pytest
+from i_o.file_reader import Configuration
 
 
 def str_list(l):
@@ -126,8 +127,9 @@ def test_law_example():
 
 @skip
 def test_BNA():
-    config = Configuration()
-    a, b = config.parse_json("./sample_rule_sets/british_national_act.json")
+    config = Configuration(Rule, toProposition)
+    a, b = config.parse_json(
+        "./src/sample_rule_sets/british_national_act.json")
     #rules = set(a)
     #initial = set(b)
     rules = set()
@@ -136,8 +138,6 @@ def test_BNA():
         rules.add(i)
     for j in b:
         initial.add(j)
-    # print(type(set(a)))
-    # print(type(set(b)))
     decisionSupportSystem = DecisionSupportSystem(
         initial_information=[],
         rules=rules,
@@ -148,7 +148,7 @@ def test_BNA():
 
 @skip
 def test_cremers():
-    config = Configuration()
+    config = Configuration(Rule, toProposition)
     a, b = config.parse_json("./sample_rule_sets/cremers_example.json")
     rules = set(a)
     initial = set(b)
@@ -156,5 +156,33 @@ def test_cremers():
         initial_information=[],
         rules=rules,
         question=parse('LEGAL_RequestedChangeWorkingHours')
+    )
+    decisionSupportSystem.run()
+
+
+@skip
+def test_presentation():
+    """
+
+    """
+    decisionSupportSystem = DecisionSupportSystem(
+        initial_information=[
+
+        ],
+        rules=[
+            Rule(
+                parse('justifiable_defense'),
+                parse('¬conviction')
+            ),
+            Rule(
+                parse('threaten & attacked'),
+                parse('justifiable_defense')
+            ),
+            Rule(
+                parse('kill_person '),
+                parse('conviction')
+            ),
+        ],
+        question=parse('conviction')
     )
     decisionSupportSystem.run()

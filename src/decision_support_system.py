@@ -3,14 +3,21 @@ from reasoning_elements.proposition import Proposition
 from reasoning_elements.rule import *
 from defeasible_tableau import Tableau
 from i_o.user_input import *
+from i_o.file_reader import Configuration
+from propositional_parser import toProposition
+from reasoning_elements.rule import Rule
+
 
 class DecisionSupportSystem:
     """
     Decision Support System
     """
 
-    ### preliminary in file config
+    # preliminary in file config
     io = UserInput()
+    config = Configuration(Rule, toProposition)
+    # rules, facts = Configuration.parse_json(<file_path>)
+    # use this to get rules and facts from the JSON serialized format
     ###
 
     def __init__(self,
@@ -28,7 +35,6 @@ class DecisionSupportSystem:
 
     def setup(self, proposition):
 
-
         return
 
     def run(self):
@@ -37,7 +43,8 @@ class DecisionSupportSystem:
         counter_arguments = []
 
         while not done:
-            tableau = Tableau(question=self.question, initial_information=self.initial_information, rules=self.rules)
+            tableau = Tableau(
+                question=self.question, initial_information=self.initial_information, rules=self.rules)
             status, return_values = tableau.evaluate()
             if status == 'known':
                 pro_arguments, counter_arguments = return_values[0], return_values[1]
@@ -56,7 +63,8 @@ class DecisionSupportSystem:
                 test_counter[test] = 0
             test_counter[test] = test_counter[test] + 1
 
-        ordered_by_frequency = {k: v for k, v in sorted(test_counter.items(), key=lambda item: item[1])}
+        ordered_by_frequency = {k: v for k, v in sorted(
+            test_counter.items(), key=lambda item: item[1])}
         return list(ordered_by_frequency.keys())[0]
 
     def ask_question(self, test: Proposition):
