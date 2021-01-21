@@ -62,7 +62,7 @@ class DecisionSupportSystem:
     def ask_question(self, test: Proposition):
         if not self.io.ask(test):
             test = test.negate()
-        self.initial_information.append(test)
+        self.initial_information.add(test)
         return
 
     def process_results(self, pro_arguments, counter_arguments):
