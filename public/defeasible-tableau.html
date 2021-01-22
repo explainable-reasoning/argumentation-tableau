@@ -47,10 +47,14 @@ WorkedForAtLeastTwentySixWeeks
         </textarea><br />
         <input id="submit" type="submit" value="Get Arguments" class="btn btn-primary"
             style="width: 100%" /><br /><br />
+        <div id="questions" style="visibility: hidden;">
+            <h4>Questions:</h4>
+            <div id="questionstarget" style="white-space: pre-wrap"></div>
+        </div>
         <div id="target" style="visibility: hidden;">
             <h4>Pro:</h4>
             <div id="pro" style="white-space: pre-wrap"></div>
-            <br/>
+            <br />
             <h4>Contra:</h4>
             <div id="contra" style="white-space: pre-wrap"></div>
         </div>
@@ -70,10 +74,18 @@ WorkedForAtLeastTwentySixWeeks
                 })
             }).then(res =>
                 res.text().then(res => {
-                    arguments = JSON.parse(res)
-                    document.getElementById("pro").innerText = arguments[0]
-                    document.getElementById("contra").innerText = arguments[1]
-                    document.getElementById("target").style.visibility = 'visible'
+                    parsed = JSON.parse(res)
+                    console.log(parsed)
+                    if (parsed['flag'] === 'known') {
+                        document.getElementById("pro").innerText = parsed['result'][0]
+                        document.getElementById("contra").innerText = parsed['result'][1]
+                        document.getElementById("questions").style.visibility = 'hidden'
+                        document.getElementById("target").style.visibility = 'visible'
+                    } else {
+                        document.getElementById("questionstarget").innerText = parsed['result'].join('\n')
+                        document.getElementById("target").style.visibility = 'hidden'
+                        document.getElementById("questions").style.visibility = 'visible'
+                    }
                 })
             );
         }
